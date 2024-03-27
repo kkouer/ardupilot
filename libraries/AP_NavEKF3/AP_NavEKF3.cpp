@@ -1103,6 +1103,19 @@ void NavEKF3::setPosVelYawSourceSet(uint8_t source_set_idx)
         AP::dal().log_event3(AP_DAL::Event(uint8_t(AP_DAL::Event::setSourceSet0)+source_set_idx));
     }
     sources.setPosVelYawSourceSet(source_set_idx);
+
+    //gcs().send_text(MAV_SEVERITY_WARNING, "source index %d",source_set_idx);
+
+    //kkouer added if switch from beacon to gps reAlign
+    // if(source_set_idx == 1)
+    // {        
+    //     for (uint8_t i = 0; i < num_cores; i++) 
+    //     {
+    //         core[i].InitialiseBeaconVariables();
+    //     }
+        
+    //     gcs().send_text(MAV_SEVERITY_WARNING, "-setPosVelYawSourceSet-");
+    // }
 }
 
 // Check basic filter health metrics and return a consolidated health status

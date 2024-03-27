@@ -25,6 +25,7 @@
 
 #include <AP_Common/Location.h>
 #include <AP_Logger/AP_Logger.h>
+#include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL &hal;
 
@@ -124,6 +125,12 @@ bool AP_Beacon::healthy(void) const
         return false;
     }
     return _driver->healthy();
+}
+
+// kkouer added
+void AP_Beacon::setParseSettingFrame() const
+{
+    _driver->isParsedSettingFrame = true;
 }
 
 // update state. This should be called often from the main loop
@@ -230,6 +237,7 @@ Vector3f AP_Beacon::beacon_position(uint8_t beacon_instance) const
         Vector3f temp = {};
         return temp;
     }
+    //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Beacon id: %d, px: %.3f, py:%.3f", beacon_instance, beacon_state[beacon_instance].position.x, beacon_state[beacon_instance].position.y);
     return beacon_state[beacon_instance].position;
 }
 

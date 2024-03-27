@@ -52,6 +52,8 @@ bool AP_Beacon_Nooploop::healthy()
     return ((AP_HAL::millis() - _last_update_ms) < AP_BEACON_TIMEOUT_MS);
 }
 
+
+int count = 0;
 // update the state of the sensor
 void AP_Beacon_Nooploop::update(void)
 {
@@ -67,14 +69,24 @@ void AP_Beacon_Nooploop::update(void)
         if (b >= 0 ) {
             MsgType type = parse_byte((uint8_t)b);
             if (type == MsgType::NODE_FRAME2) {
+                //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "count %d                      beacon",count);
                 //kkouer mod, just pares the frame directly
-                //if (_anchor_pos_avail) {
+                //if (_anchor_pos_avail && isParsedSettingFrame) {
                     parse_node_frame2();
+                if(!isParsedSettingFrame)
+                        count++;
                 // } else if (AP_HAL::millis() - _last_request_setting_ms > 2000) {
-                //     _last_request_setting_ms = AP_HAL::millis();
+                    //     _last_request_setting_ms = AP_HAL::millis();
                 //     request_setting();
                 // }
-            } else if (type == MsgType::SETTING_FRAME0) {
+                if(count>500 && !isParsedSettingFrame){
+                    count=-1000;
+                    request_setting();
+                }
+
+            }
+            else if (type == MsgType::SETTING_FRAME0) {
+
                 parse_setting_frame0();
             } 
         }
@@ -83,15 +95,27 @@ void AP_Beacon_Nooploop::update(void)
 
 void AP_Beacon_Nooploop::request_setting()
 {
-     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "request_setting                      beacon");
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "request_setting                      beacon");
     //send setting_frame0 to tag, tag will fill anchor position and ack
-    uart->write((uint8_t)0x54);
-    uart->write((uint8_t)0);
-    uart->write((uint8_t)1);
-    for (uint8_t i = 0; i < 124; i++) {
-        uart->write((uint8_t)0); //manual states filled with any char, but in fact only 0 works
-    }
-    uart->write((uint8_t)0x55);
+    // uart->write((uint8_t)0x54);
+    // uart->write((uint8_t)0);
+    // uart->write((uint8_t)1);
+    // for (uint8_t i = 0; i < 124; i++) {
+    //     uart->write((uint8_t)0); //manual states filled with any char, but in fact only 0 works
+    // }
+    // uart->write((uint8_t)0x55);
+
+    // Define the byte array with the given hexadecimal values
+    uint8_t bytes[] = {
+        0x54 ,0x00, 0x01, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 0xff, 00, 0xff, 00, 00, 0xff, 0xff, 00, 0xff, 0xff, 00, 00, 00, 00, 00, 00,
+00, 00, 0xff, 0xff, 0xff, 0xff, 0xff, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 0x4a
+    };
+
+    // Send the byte array through UART
+    uart->write(bytes, sizeof(bytes));
+
 }
 
 // process one byte received on serial port
@@ -202,10 +226,10 @@ void AP_Beacon_Nooploop::parse_node_frame2()
     _last_update_ms = AP_HAL::millis();
 
     // estimated precision for x,y position in meters
-    const float precision_x = _msgbuf[NOOPLOOP_NODE_FRAME2_PRECISION_X] * 0.01;
-    const float precision_y = _msgbuf[NOOPLOOP_NODE_FRAME2_PRECISION_Y] * 0.01;
+    //  const float precision_x = _msgbuf[NOOPLOOP_NODE_FRAME2_PRECISION_X] * 0.01;
+    //  const float precision_y = _msgbuf[NOOPLOOP_NODE_FRAME2_PRECISION_Y] * 0.01;
     //EKF's estimate goes very bad if the error value sent into the EKF is unrealistically low. ensure it's never less than a reasonable value
-    const float pos_err = MAX(0.1f, sqrtf(sq(precision_x)+sq(precision_y)));
+    //const float pos_err = MAX(0.1f, sqrtf(sq(precision_x)+sq(precision_y)));
 
     // x,y,z position in m*1000 in ENU frame
     const int32_t pos_x = ((int32_t)_msgbuf[NOOPLOOP_NODE_FRAME2_POSX+2] << 24 | (int32_t)_msgbuf[NOOPLOOP_NODE_FRAME2_POSX+1] << 16 | (int32_t)_msgbuf[NOOPLOOP_NODE_FRAME2_POSX] << 8) >> 8;
@@ -215,7 +239,10 @@ void AP_Beacon_Nooploop::parse_node_frame2()
     // position scaled to meters and changed to NED
     const Vector3f pos_m {pos_y * 0.001f, pos_x * 0.001f, -pos_z * 0.001f};
 
-    set_vehicle_position(pos_m, pos_err);
+    //set_vehicle_position(pos_m, pos_err);
+    set_vehicle_position(pos_m, 0.11f);
+
+    
 
     const uint8_t valid_nodes = _msgbuf[NOOPLOOP_NODE_FRAME2_VALID_NODES];
     for (uint8_t i = 0; i < valid_nodes; i++) {
@@ -224,7 +251,7 @@ void AP_Beacon_Nooploop::parse_node_frame2()
         const int32_t dist = ((int32_t)_msgbuf[offset+2+2] << 24 | (int32_t)_msgbuf[offset+2+1] << 16 | (int32_t)_msgbuf[offset+2] << 8) >> 8;
         if(getNodeData && i < valid_nodes)
         {
-        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "update beacon id %d ", id );
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "update beacon id %d dist %ld ", id ,dist);
             if(i==valid_nodes-1)
                 getNodeData = false;
         }
@@ -232,9 +259,11 @@ void AP_Beacon_Nooploop::parse_node_frame2()
     }
 }
 
-int settingCount = 0;
+
 void AP_Beacon_Nooploop::parse_setting_frame0()
 {
+    //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "parse_sf       beacon");
+    isParsedSettingFrame= true;
     for (uint8_t i = 0; i < 4; i++) {
         uint16_t offset = NOOPLOOP_SETTING_FRAME0_A0 + i * 9;
 
@@ -254,14 +283,15 @@ void AP_Beacon_Nooploop::parse_setting_frame0()
             return;
         }
 
+        
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "id: %d, px: %ld, py:%ld beacon", i, pos_x, pos_y);
+
         // position scaled to meters and changed to NED
         const Vector3f pos_m {pos_y * 0.001f, pos_x * 0.001f, -pos_z * 0.001f};
         
         set_beacon_position(i, pos_m);
     }
-    settingCount ++;
-    if(settingCount > 10)
-    _anchor_pos_avail = true;
+        _anchor_pos_avail = true;
 }
 
 #endif  // AP_BEACON_NOOPLOOP_ENABLED
