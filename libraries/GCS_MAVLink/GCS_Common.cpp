@@ -3440,6 +3440,27 @@ void GCS_MAVLINK::handle_data_packet(const mavlink_message_t &msg)
 #endif
 }
 
+/*
+  handle a DATA16 message kkouer add
+ */
+void GCS_MAVLINK::handle_data_16_packet(const mavlink_message_t &msg)
+{
+    mavlink_data16_t m;
+    mavlink_msg_data16_decode(&msg, &m);
+    switch (m.type) {
+    case 01:
+        gcs().send_text(MAV_SEVERITY_INFO, "get data16 with ID 1, the value:%s", m.data);
+        hal.serial(4)->write((uint8_t*)m.data , m.len);
+    break;
+    case 43:
+        gcs().send_text(MAV_SEVERITY_INFO, "get data16 with ID 43");
+    break;
+    default:
+        // unknown
+        break;
+    }
+}
+
 #if HAL_VISUALODOM_ENABLED
 void GCS_MAVLINK::handle_vision_position_delta(const mavlink_message_t &msg)
 {
@@ -3922,6 +3943,10 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
         if (!(_port->get_options() & _port->OPTION_NOSTREAMOVERRIDE)) {
             handle_request_data_stream(msg);
         }
+        break;
+    //kkouer add data16 date handle
+    case MAVLINK_MSG_ID_DATA16:
+        handle_data_16_packet(msg);
         break;
 
     case MAVLINK_MSG_ID_DATA96:
