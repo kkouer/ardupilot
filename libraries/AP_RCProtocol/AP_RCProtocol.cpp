@@ -306,10 +306,7 @@ static const AP_RCProtocol::SerialConfig serial_configs[] {
     { 416666,  0,   1, false },
     // CRSFv3 can negotiate higher rates which are sticky on soft reboot
     { 2000000, 0,   1, false },
-<<<<<<< HEAD
 #endif
-=======
->>>>>>> Copter4.4
 };
 
 static_assert(ARRAY_SIZE(serial_configs) > 1, "must have at least one serial config");

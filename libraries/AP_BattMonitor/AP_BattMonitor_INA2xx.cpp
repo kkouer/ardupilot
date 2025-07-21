@@ -93,11 +93,7 @@ const AP_Param::GroupInfo AP_BattMonitor_INA2XX::var_info[] = {
     // @Units: Ohm
     // @User: Advanced
     AP_GROUPINFO("SHUNT", 28, AP_BattMonitor_INA2XX, rShunt, DEFAULT_BATTMON_INA2XX_SHUNT),
-<<<<<<< HEAD
     
-=======
-
->>>>>>> Copter4.4
     AP_GROUPEND
 };
 

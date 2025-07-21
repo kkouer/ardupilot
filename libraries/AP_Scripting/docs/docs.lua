@@ -1652,7 +1652,6 @@ function MotorsMatrix:get_lost_motor() end
 -- desc return true if we are in thrust boost due to possible lost motor
 ---@return boolean
 function MotorsMatrix:get_thrust_boost() end
-<<<<<<< HEAD
 
 
 -- Sub singleton
@@ -1669,8 +1668,6 @@ function sub:is_button_pressed(index) end
 ---@return integer
 function sub:get_and_clear_button_count(index) end
 
-=======
->>>>>>> Copter4.4
 
 -- desc
 ---@class quadplane
@@ -1863,7 +1860,6 @@ local ESCTelemetryData_ud = {}
 ---@return ESCTelemetryData_ud
 function ESCTelemetryData() end
 
-<<<<<<< HEAD
 -- set motor temperature
 ---@param value integer
 function ESCTelemetryData_ud:motor_temp_cdeg(value) end
@@ -1881,25 +1877,6 @@ function ESCTelemetryData_ud:current(value) end
 function ESCTelemetryData_ud:voltage(value) end
 
 -- set temperature
-=======
--- set field
----@param value integer
-function ESCTelemetryData_ud:motor_temp_cdeg(value) end
-
--- set field
----@param value number
-function ESCTelemetryData_ud:consumption_mah(value) end
-
--- set field
----@param value number
-function ESCTelemetryData_ud:current(value) end
-
--- set field
----@param value number
-function ESCTelemetryData_ud:voltage(value) end
-
--- set field
->>>>>>> Copter4.4
 ---@param value integer
 function ESCTelemetryData_ud:temperature_cdeg(value) end
 
@@ -1908,15 +1885,9 @@ function ESCTelemetryData_ud:temperature_cdeg(value) end
 esc_telem = {}
 
 -- update telemetry data for an ESC instance
-<<<<<<< HEAD
 ---@param instance integer -- 0 is first motor
 ---@param telemdata ESCTelemetryData_ud
 ---@param data_mask integer -- bit mask of what fields are filled in
-=======
----@param instance integer
----@param telemdata ESCTelemetryData_ud
----@param data_mask integer
->>>>>>> Copter4.4
 function esc_telem:update_telem_data(instance, telemdata, data_mask) end
 
 -- desc
@@ -3248,7 +3219,6 @@ AR_PosControl = {}
 ---@return number -- velocity slew rate
 function AR_PosControl:get_srate() end
 
-<<<<<<< HEAD
 -- precision landing access
 ---@class precland
 precland = {}
@@ -3273,8 +3243,6 @@ function precland:target_acquired() end
 ---@return boolean
 function precland:healthy() end
 
-=======
->>>>>>> Copter4.4
 -- desc
 ---@class follow
 follow = {}

@@ -14,16 +14,6 @@ from pymavlink import quaternion
 from pymavlink import mavextra
 from pymavlink import mavutil
 
-<<<<<<< HEAD
-=======
-from common import AutoTest
-from common import AutoTestTimeoutException
-from common import NotAchievedException
-from common import PreconditionFailedException
-from common import WaitModeTimeout
-from common import Test
-
->>>>>>> Copter4.4
 from pymavlink.rotmat import Vector3
 
 import vehicle_test_suite
@@ -959,7 +949,6 @@ class AutoTestPlane(vehicle_test_suite.TestSuite):
             p4=0, # absolute values
         )
 
-<<<<<<< HEAD
         self.start_subtest("Setting airspeed")
         for new_target_airspeed in initial_speed - 5, initial_speed + 5:
             run_cmd_method(
@@ -971,20 +960,6 @@ class AutoTestPlane(vehicle_test_suite.TestSuite):
             )
             self.wait_airspeed(new_target_airspeed-2, new_target_airspeed+2, minimum_duration=5)
 
-=======
-        self.progress("Setting airspeed")
-        new_target_airspeed = initial_speed + 5
-        self.run_cmd(
-            mavutil.mavlink.MAV_CMD_DO_CHANGE_SPEED,
-            0, # airspeed
-            new_target_airspeed,
-            -1, # throttle / no change
-            0, # absolute values
-            0,
-            0,
-            0)
-        self.wait_airspeed(new_target_airspeed-0.5, new_target_airspeed+0.5)
->>>>>>> Copter4.4
         self.context_push()
         self.progress("Adding some wind, hoping groundspeed increases/decreases")
         self.set_parameters({
@@ -1004,7 +979,6 @@ class AutoTestPlane(vehicle_test_suite.TestSuite):
             if delta > want_delta:
                 break
         self.context_pop()
-<<<<<<< HEAD
 
         # cancel minimum groundspeed:
         run_cmd_method(
@@ -1037,8 +1011,6 @@ class AutoTestPlane(vehicle_test_suite.TestSuite):
                 "throttle": expected_throttle,
             }, minimum_duration=5, epsilon=2)
 
-=======
->>>>>>> Copter4.4
         self.fly_home_land_and_disarm(timeout=240)
 
     def fly_home_land_and_disarm(self, timeout=120):

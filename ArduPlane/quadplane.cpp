@@ -4769,7 +4769,6 @@ bool QuadPlane::abort_landing(void)
     return true;
 }
 
-<<<<<<< HEAD
 // Should we allow stick mixing from the pilot
 bool QuadPlane::allow_stick_mixing() const
 {
@@ -4781,8 +4780,6 @@ bool QuadPlane::allow_stick_mixing() const
     return transition->allow_stick_mixing();
 }
 
-=======
->>>>>>> Copter4.4
 /*
   return true if we should disable TECS in the current flight state
   this ensures that TECS resets when we change height in a VTOL mode
@@ -4799,7 +4796,6 @@ bool QuadPlane::should_disable_TECS() const
     return false;
 }
 
-<<<<<<< HEAD
 // Get pilot throttle input with deadzone, this will return 50% throttle in failsafe!
 // This is a re-implmentation of Plane::get_throttle_input
 // Ignoring the no_deadzone case means we don't need to check for valid RC
@@ -4820,6 +4816,4 @@ bool QuadPlane::allow_forward_throttle_in_vtol_mode() const
     return in_vtol_mode() && motors->armed() && (motors->get_desired_spool_state() != AP_Motors::DesiredSpoolState::SHUT_DOWN);
 }
 
-=======
->>>>>>> Copter4.4
 #endif  // HAL_QUADPLANE_ENABLED

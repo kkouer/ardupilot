@@ -30,11 +30,7 @@ private:
 
     uint32_t telem_delay() const override { return 0; }
     bool handle_guided_request(AP_Mission::Mission_Command &cmd) override { return true; }
-<<<<<<< HEAD
     MAV_RESULT handle_preflight_reboot(const mavlink_command_int_t &packet, const mavlink_message_t &msg) override;
-=======
-    MAV_RESULT handle_preflight_reboot(const mavlink_command_long_t &packet, const mavlink_message_t &msg) override;
->>>>>>> Copter4.4
     uint8_t sysid_my_gcs() const override;
 
 protected:

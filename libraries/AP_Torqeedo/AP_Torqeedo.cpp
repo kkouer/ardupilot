@@ -352,11 +352,7 @@ void AP_Torqeedo::report_error_codes()
         GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "%s high temp", msg_prefix);
     }
     if (_display_system_state.flags.batt_nearly_empty) {
-<<<<<<< HEAD
         GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "%s batt nearly empty", msg_prefix);
-=======
-        gcs().send_text(MAV_SEVERITY_CRITICAL, "%s batt nearly empty", msg_prefix);
->>>>>>> Copter4.4
     }
     if (_display_system_state.master_error_code > 0) {
         const char *error_string = map_master_error_code_to_string(_display_system_state.master_error_code);

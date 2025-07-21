@@ -2019,11 +2019,7 @@ class TestSuite(ABC):
         self.progress("Rebooting SITL")
         self.reboot_sitl_mav(required_bootcount=required_bootcount, force=force)
         self.do_heartbeats(force=True)
-<<<<<<< HEAD:Tools/autotest/vehicle_test_suite.py
         if check_position and self.frame != 'sailboat':  # sailboats drift with wind!
-=======
-        if self.frame != 'sailboat':  # sailboats drift with wind!
->>>>>>> Copter4.4:Tools/autotest/common.py
             self.assert_simstate_location_is_at_startup_location()
 
     def reboot_sitl_mavproxy(self, required_bootcount=None):
@@ -8334,15 +8330,12 @@ Also, ignores heartbeats not from our target system'''
             passed = False
             reset_needed = True
 
-<<<<<<< HEAD:Tools/autotest/vehicle_test_suite.py
         try:
             self.context_pop(process_interaction_allowed=ardupilot_alive)
         except Exception as e:
             self.print_exception_caught(e, send_statustext=False)
             passed = False
 
-=======
->>>>>>> Copter4.4:Tools/autotest/common.py
         # if we haven't already reset ArduPilot because it's dead,
         # then ensure the vehicle was disarmed at the end of the test.
         # If it wasn't then the test is considered failed:
@@ -8362,11 +8355,7 @@ Also, ignores heartbeats not from our target system'''
                 self.progress("Force-rebooting SITL")
                 self.reboot_sitl() # that'll learn it
             passed = False
-<<<<<<< HEAD:Tools/autotest/vehicle_test_suite.py
         elif ardupilot_alive and not passed:  # implicit reboot after a failed test:
-=======
-        elif not passed:  # implicit reboot after a failed test:
->>>>>>> Copter4.4:Tools/autotest/common.py
             self.progress("Test failed but ArduPilot process alive; rebooting")
             self.reboot_sitl() # that'll learn it
 
@@ -8539,11 +8528,7 @@ Also, ignores heartbeats not from our target system'''
         if self.mav is not None:
             self.mav.reconnect()
 
-<<<<<<< HEAD:Tools/autotest/vehicle_test_suite.py
     def get_supplementary_programs(self):
-=======
-    def get_suplementary_programs(self):
->>>>>>> Copter4.4:Tools/autotest/common.py
         return self.sup_prog
 
     def stop_sup_program(self, instance=None):

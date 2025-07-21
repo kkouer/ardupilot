@@ -124,22 +124,6 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
     def set_autodisarm_delay(self, delay):
         self.set_parameter("DISARM_DELAY", delay)
 
-<<<<<<< HEAD
-=======
-    def user_takeoff(self, alt_min=30, timeout=30, max_err=5):
-        '''takeoff using mavlink takeoff command'''
-        self.run_cmd(mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
-                     0, # param1
-                     0, # param2
-                     0, # param3
-                     0, # param4
-                     0, # param5
-                     0, # param6
-                     alt_min # param7
-                     )
-        self.wait_altitude(alt_min-1, alt_min+max_err, relative=True, timeout=timeout)
-
->>>>>>> Copter4.4
     def takeoff(self,
                 alt_min=30,
                 takeoff_throttle=1700,
@@ -2851,25 +2835,12 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         self.start_sup_program(instance=1, args="-M")
         self.delay_sim_time(2)
         self.context_collect('STATUSTEXT')
-<<<<<<< HEAD
         self.run_cmd(
             mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
             p1=1,  # ARM
             timeout=10,
             want_result=mavutil.mavlink.MAV_RESULT_FAILED,
         )
-=======
-        self.run_cmd(mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
-                     1,  # ARM
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     timeout=10,
-                     want_result=mavutil.mavlink.MAV_RESULT_FAILED)
->>>>>>> Copter4.4
         self.wait_statustext(".*Node .* unhealthy", check_context=True, regex=True)
         self.stop_sup_program(instance=0)
         self.start_sup_program(instance=0)
@@ -10118,18 +10089,7 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
 
         self.start_subtest("Checking mavlink commands")
         self.progress("Starting Sprayer")
-<<<<<<< HEAD
         self.run_cmd_int(mavutil.mavlink.MAV_CMD_DO_SPRAYER, p1=1)
-=======
-        self.run_cmd(mavutil.mavlink.MAV_CMD_DO_SPRAYER,
-                     1,  # p1
-                     0,  # p2
-                     0,  # p3
-                     0,  # p4
-                     0,  # p5
-                     0,  # p6
-                     0)  # p7
->>>>>>> Copter4.4
 
         self.progress("Testing speed-ramping")
         self.wait_servo_channel_value(
@@ -10140,19 +10100,8 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         )
 
         self.start_subtest("Stopping Sprayer")
-<<<<<<< HEAD
         self.run_cmd(mavutil.mavlink.MAV_CMD_DO_SPRAYER, p1=0)
 
-=======
-        self.run_cmd(mavutil.mavlink.MAV_CMD_DO_SPRAYER,
-                     0,  # p1
-                     0,  # p2
-                     0,  # p3
-                     0,  # p4
-                     0,  # p5
-                     0,  # p6
-                     0)  # p7
->>>>>>> Copter4.4
         self.wait_servo_channel_value(pump_ch, pump_ch_min)
 
         self.context_pop()

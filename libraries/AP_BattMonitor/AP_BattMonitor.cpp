@@ -239,7 +239,6 @@ const AP_Param::GroupInfo AP_BattMonitor::var_info[] = {
     AP_SUBGROUPVARPTR(drivers[8], "9_", 49, AP_BattMonitor, backend_var_info[8]),
 #endif
 
-<<<<<<< HEAD
 #if AP_BATT_MONITOR_MAX_INSTANCES > 9
     // @Group: A_
     // @Path: AP_BattMonitor_Params.cpp
@@ -259,19 +258,10 @@ const AP_Param::GroupInfo AP_BattMonitor::var_info[] = {
     // @Path: AP_BattMonitor_Synthetic_Current.cpp
     // @Group: A_
     // @Path: AP_BattMonitor_INA2xx.cpp
-=======
-//kkouer add
-#if AP_BATT_MONITOR_MAX_INSTANCES > 9
-    // @Group: 10_
-    // @Path: AP_BattMonitor_Params.cpp
-    AP_SUBGROUPINFO(_params[9], "A_", 32, AP_BattMonitor, AP_BattMonitor_Params),
-    
->>>>>>> Copter4.4
     AP_SUBGROUPVARPTR(drivers[9], "A_", 50, AP_BattMonitor, backend_var_info[9]),
 #endif
 
 #if AP_BATT_MONITOR_MAX_INSTANCES > 10
-<<<<<<< HEAD
     // @Group: B_
     // @Path: AP_BattMonitor_Params.cpp
     AP_SUBGROUPINFO(_params[10], "B_", 33, AP_BattMonitor, AP_BattMonitor_Params),
@@ -290,16 +280,10 @@ const AP_Param::GroupInfo AP_BattMonitor::var_info[] = {
     // @Path: AP_BattMonitor_Synthetic_Current.cpp
     // @Group: B_
     // @Path: AP_BattMonitor_INA2xx.cpp
-=======
-
-    AP_SUBGROUPINFO(_params[10], "B_", 33, AP_BattMonitor, AP_BattMonitor_Params),
-
->>>>>>> Copter4.4
     AP_SUBGROUPVARPTR(drivers[10], "B_", 51, AP_BattMonitor, backend_var_info[10]),
 #endif
 
 #if AP_BATT_MONITOR_MAX_INSTANCES > 11
-<<<<<<< HEAD
     // @Group: C_
     // @Path: AP_BattMonitor_Params.cpp
     AP_SUBGROUPINFO(_params[11], "C_", 34, AP_BattMonitor, AP_BattMonitor_Params),
@@ -413,15 +397,6 @@ const AP_Param::GroupInfo AP_BattMonitor::var_info[] = {
     #error "AP_BATT_MONITOR_MAX_INSTANCES too large, reset_remaining_mask() will cause an assert above 16"
 #endif
 
-=======
-
-    AP_SUBGROUPINFO(_params[11], "C_", 34, AP_BattMonitor, AP_BattMonitor_Params),
-
-
-    AP_SUBGROUPVARPTR(drivers[11], "C_", 52, AP_BattMonitor, backend_var_info[11]),
-#endif
-
->>>>>>> Copter4.4
     AP_GROUPEND
 };
 

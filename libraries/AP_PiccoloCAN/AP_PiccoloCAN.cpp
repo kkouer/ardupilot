@@ -378,7 +378,6 @@ void AP_PiccoloCAN::update()
                     Servo_ErrorBits_t ebits;
                     uint8_t errors;
                 } err;
-<<<<<<< HEAD
                 err.ebits = servo.status.statusA.errors;
                 logger->Write_ServoStatus(
                     timestamp,
@@ -392,21 +391,6 @@ void AP_PiccoloCAN::update()
                     servo.current(),                        // Servo current
                     servo.temperature(),                    // Servo temperature
                     servo.temperature(),                    // 
-=======
-                err.ebits = servo.statusA.errors;
-                logger->Write_ServoStatus(
-                    timestamp,
-                    ii,
-                    (float) servo.statusA.position,         // Servo position (represented in microsecond units)
-                    (float) servo.statusB.current * 0.01f, // Servo force (actually servo current, 0.01A per bit)
-                    (float) servo.statusB.speed,            // Servo speed (degrees per second)
-                    (uint8_t) abs(servo.statusB.dutyCycle),  // Servo duty cycle (absolute value as it can be +/- 100%)
-                    servo.statusA.command,
-                    servo.statusB.voltage*0.01,
-                    servo.statusB.current*0.01,
-                    servo.statusB.temperature,
-                    servo.statusB.temperature,
->>>>>>> Copter4.4
                     err.errors
                 );
 

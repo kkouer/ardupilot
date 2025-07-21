@@ -181,7 +181,6 @@ AP_GPS_SIRF::_parse_gps(void)
         }else{
             state.status = AP_GPS::GPS_OK_FIX_2D;
         }
-<<<<<<< HEAD
         state.location.lat      = int32_t(be32toh(_buffer.nav.latitude));
         state.location.lng      = int32_t(be32toh(_buffer.nav.longitude));
         const int32_t alt_amsl = int32_t(be32toh(_buffer.nav.altitude_msl));
@@ -191,18 +190,6 @@ AP_GPS_SIRF::_parse_gps(void)
         set_alt_amsl_cm(state, alt_amsl);
         state.ground_speed      = int32_t(be32toh(_buffer.nav.ground_speed))*0.01f;
         state.ground_course     = wrap_360(int16_t(be16toh(_buffer.nav.ground_course)*0.01f));
-=======
-        state.location.lat      = swap_int32(_buffer.nav.latitude);
-        state.location.lng      = swap_int32(_buffer.nav.longitude);
-        const int32_t alt_amsl = swap_int32(_buffer.nav.altitude_msl);
-        const int32_t alt_ellipsoid = swap_int32(_buffer.nav.altitude_ellipsoid);
-        state.have_undulation = true;
-        state.undulation = (alt_amsl - alt_ellipsoid)*0.01;
-        set_alt_amsl_cm(state, alt_amsl);
-        state.location.alt      = swap_int32(_buffer.nav.altitude_msl);
-        state.ground_speed      = swap_int32(_buffer.nav.ground_speed)*0.01f;
-        state.ground_course     = wrap_360(swap_int16(_buffer.nav.ground_course)*0.01f);
->>>>>>> Copter4.4
         state.num_sats          = _buffer.nav.satellites;
         fill_3d_velocity();
         return true;

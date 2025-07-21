@@ -1686,11 +1686,7 @@ void AP_OSD_Screen::draw_gspeed(uint8_t x, uint8_t y)
     float angle = 0;
     const float length = v.length();
     if (length > 1.0f) {
-<<<<<<< HEAD
         angle = atan2f(v.y, v.x) - ahrs.get_yaw();
-=======
-        angle = atan2f(v.y, v.x) - ahrs.yaw;
->>>>>>> Copter4.4
     }
     draw_speed(x + 1, y, angle, length);
 }
@@ -1941,11 +1937,7 @@ void AP_OSD_Screen::draw_wind(uint8_t x, uint8_t y)
         if (check_option(AP_OSD::OPTION_INVERTED_WIND)) {
             angle = M_PI;
         }
-<<<<<<< HEAD
         angle = angle + atan2f(v.y, v.x) - ahrs.get_yaw();
-=======
-        angle = angle + atan2f(v.y, v.x) - ahrs.yaw;
->>>>>>> Copter4.4
     } 
     draw_speed(x + 1, y, angle, length);
 

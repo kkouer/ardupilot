@@ -136,13 +136,11 @@ void NavEKF3_core::controlMagYawReset()
 // this function is used to do a forced re-alignment of the yaw angle to align with the horizontal velocity
 // vector from GPS. It is used to align the yaw angle after launch or takeoff.
 void NavEKF3_core::realignYawGPS(bool emergency_reset)
-void NavEKF3_core::realignYawGPS(bool emergency_reset)
 {
     // get quaternion from existing filter states and calculate roll, pitch and yaw angles
     Vector3F eulerAngles;
     stateStruct.quat.to_euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 
-    if (gpsDataDelayed.vel.xy().length_squared() > sq(GPS_VEL_YAW_ALIGN_MIN_SPD)) {
     if (gpsDataDelayed.vel.xy().length_squared() > sq(GPS_VEL_YAW_ALIGN_MIN_SPD)) {
         // calculate course yaw angle
         ftype velYaw = atan2F(stateStruct.velocity.y,stateStruct.velocity.x);
@@ -181,45 +179,14 @@ void NavEKF3_core::realignYawGPS(bool emergency_reset)
                 rotationOrder order;
                 bestRotationOrder(order);
                 resetQuatStateYawOnly(gpsYaw, gps_yaw_variance, order);
-            // get yaw variance from GPS speed uncertainty
-            const ftype gpsVelAcc = fmaxF(gpsSpdAccuracy, ftype(frontend->_gpsHorizVelNoise));
-            const ftype gps_yaw_variance = sq(asinF(constrain_float(gpsVelAcc/gpsDataDelayed.vel.xy().length(), -1.0F, 1.0F)));
 
-            if (gps_yaw_variance < sq(radians(GPS_VEL_YAW_ALIGN_MAX_ANG_ERR))) {
-                yawAlignGpsValidCount++;
-            } else {
-                yawAlignGpsValidCount = 0;
-            }
-
-            if (yawAlignGpsValidCount >= GPS_VEL_YAW_ALIGN_COUNT_THRESHOLD) {
-                yawAlignGpsValidCount = 0;
-                // keep roll and pitch and reset yaw
-                rotationOrder order;
-                bestRotationOrder(order);
-                resetQuatStateYawOnly(gpsYaw, gps_yaw_variance, order);
-
-                // reset the velocity and position states as they will be inaccurate due to bad yaw
-                ResetVelocity(resetDataSource::GPS);
-                ResetPosition(resetDataSource::GPS);
                 // reset the velocity and position states as they will be inaccurate due to bad yaw
                 ResetVelocity(resetDataSource::GPS);
                 ResetPosition(resetDataSource::GPS);
 
                 // send yaw alignment information to console
                 GCS_SEND_TEXT(MAV_SEVERITY_INFO, "EKF3 IMU%u yaw aligned to GPS velocity",(unsigned)imu_index);
-                // send yaw alignment information to console
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "EKF3 IMU%u yaw aligned to GPS velocity",(unsigned)imu_index);
 
-                if (use_compass()) {
-                    // request a mag field reset which may enable us to use the magnetometer if the previous fault was due to bad initialisation
-                    magStateResetRequest = true;
-                    // clear the all sensors failed status so that the magnetometers sensors get a second chance now that we are flying
-                    allMagSensorsFailed = false;
-                }
-            }
-        }
-    } else {
-        yawAlignGpsValidCount = 0;
                 if (use_compass()) {
                     // request a mag field reset which may enable us to use the magnetometer if the previous fault was due to bad initialisation
                     magStateResetRequest = true;
@@ -328,7 +295,6 @@ void NavEKF3_core::SelectMagFusion()
         } else if (tiltAlignComplete && !yawAlignComplete) {
             // External yaw sources can take significant time to start providing yaw data so
             // wuile waiting, fuse a 'fake' yaw observation at 7Hz to keeop the filter stable
-            if (imuSampleTime_ms - lastSynthYawTime_ms > 140) {
             if (imuSampleTime_ms - lastSynthYawTime_ms > 140) {
                 yawAngDataDelayed.yawAngErr = MAX(frontend->_yawNoise, 0.05f);
                 // update the yaw angle using the last estimate which will be used as a static yaw reference when movement stops

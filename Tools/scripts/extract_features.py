@@ -211,7 +211,6 @@ class ExtractFeatures(object):
             ('AP_NOTIFY_PROFILED_ENABLED', r'ProfiLED::init_ports'),
             ('AP_NOTIFY_PROFILED_SPI_ENABLED', r'ProfiLED_SPI::rgb_set_id'),
             ('AP_NOTIFY_NEOPIXEL_ENABLED', r'NeoPixel::init_ports'),
-<<<<<<< HEAD
             ('AP_FILESYSTEM_FORMAT_ENABLED', r'AP_Filesystem::format'),
 
             ('AP_FILESYSTEM_{type}_ENABLED', r'AP_Filesystem_(?P<type>.*)::open'),
@@ -245,13 +244,6 @@ class ExtractFeatures(object):
             ('HAL_LOGGING_ENABLED', 'AP_Logger::Init'),
             ('HAL_ENABLE_DRONECAN_DRIVERS', r'AP_DroneCAN::init'),
             ('AP_OSD_LINK_STATS_EXTENSIONS_ENABLED', r'AP_OSD_Screen::draw_rc_tx_power'),
-=======
-
-            ('AP_DRONECAN_HIMARK_SERVO_ENABLED', 'AP_UAVCAN::SRV_send_himark'),
-            ('AP_DRONECAN_HOBBYWING_ESC_ENABLED', 'AP_UAVCAN::hobbywing_ESC_update'),
-
-            ('AP_SDCARD_STORAGE_ENABLED', 'StorageAccess::attach_file'),
->>>>>>> Copter4.4
         ]
 
     def progress(self, msg):

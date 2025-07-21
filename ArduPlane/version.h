@@ -6,7 +6,6 @@
 
 #include "ap_version.h"
 
-<<<<<<< HEAD
 #define THISFIRMWARE "ArduPlane V4.5.7"
 
 // the following line is parsed by the autotest scripts
@@ -16,16 +15,5 @@
 #define FW_MINOR 5
 #define FW_PATCH 7
 #define FW_TYPE FIRMWARE_VERSION_TYPE_OFFICIAL
-=======
-#define THISFIRMWARE "ArduPlane V4.4.4-beta1"
-
-// the following line is parsed by the autotest scripts
-#define FIRMWARE_VERSION 4,4,4,FIRMWARE_VERSION_TYPE_BETA
-
-#define FW_MAJOR 4
-#define FW_MINOR 4
-#define FW_PATCH 4
-#define FW_TYPE FIRMWARE_VERSION_TYPE_BETA
->>>>>>> Copter4.4
 
 #include <AP_Common/AP_FWVersionDefine.h>

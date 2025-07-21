@@ -171,10 +171,7 @@ void RCOutput::init()
     _initialised = true;
 }
 
-<<<<<<< HEAD
 #if HAL_SERIALLED_ENABLED
-=======
->>>>>>> Copter4.4
 // start the led thread
 bool RCOutput::start_led_thread(void)
 {
@@ -196,34 +193,6 @@ bool RCOutput::start_led_thread(void)
 #endif
 }
 
-<<<<<<< HEAD
-=======
-/*
-  thread for handling LED RCOutpu
- */
-void RCOutput::led_thread()
-{
-    {
-        WITH_SEMAPHORE(led_thread_sem);
-        led_thread_ctx = chThdGetSelfX();
-    }
-
-    // don't start outputting until fully configured
-    while (!hal.scheduler->is_system_initialized()) {
-        hal.scheduler->delay_microseconds(1000);
-    }
-
-    while (true) {
-        chEvtWaitOne(EVT_LED_SEND);
-        // if DMA sharing is in effect there can be quite a delay between the request to begin the cycle and
-        // actually sending out data - thus we need to work out how much time we have left to collect the locks
-
-        // process any pending LED output requests
-        led_timer_tick(LED_OUTPUT_PERIOD_US + AP_HAL::micros64());
-    }
-}
-
->>>>>>> Copter4.4
 /*
   thread for handling LED RCOutpu
  */
@@ -367,7 +336,6 @@ void RCOutput::dshot_collect_dma_locks(uint64_t time_out_us, bool led_thread)
     }
     for (int8_t i = NUM_GROUPS - 1; i >= 0; i--) {
         pwm_group &group = pwm_group_list[i];
-<<<<<<< HEAD
 
         if (led_thread != is_led_protocol(group.current_mode)) {
             continue;
@@ -379,36 +347,6 @@ void RCOutput::dshot_collect_dma_locks(uint64_t time_out_us, bool led_thread)
             const sysinterval_t wait_ticks = calc_ticks_remaining(group, time_out_us,
                                                                   led_thread ? LED_OUTPUT_PERIOD_US : _dshot_period_us);
             const eventmask_t mask = chEvtWaitOneTimeout(group.dshot_event_mask, wait_ticks);
-=======
-
-        if (led_thread != is_led_protocol(group.current_mode)) {
-            continue;
-        }
-
-        if (group.dma_handle != nullptr && group.dma_handle->is_locked()) {
-            // calculate how long we have left
-            uint64_t now = AP_HAL::micros64();
-            // if we have time left wait for the event
-            eventmask_t mask = 0;
-            const uint64_t pulse_elapsed_us = now - group.last_dmar_send_us;
-            uint32_t wait_us = 0;
-            if (now < time_out_us) {
-                wait_us = time_out_us - now;
-            }
-            if (pulse_elapsed_us < group.dshot_pulse_send_time_us) {
-                // better to let the burst write in progress complete rather than cancelling mid way through
-                wait_us = MAX(wait_us, group.dshot_pulse_send_time_us - pulse_elapsed_us);
-            }
-
-            // waiting for a very short period of time can cause a
-            // timer wrap with ChibiOS timers. Use CH_CFG_ST_TIMEDELTA
-            // as minimum. Don't allow for a very long delay (over _dshot_period_us)
-            // to prevent bugs in handling timer wrap
-            const uint32_t max_delay_us = led_thread ? LED_OUTPUT_PERIOD_US : _dshot_period_us;
-            const uint32_t min_delay_us = 10; // matches our CH_CFG_ST_TIMEDELTA
-            wait_us = constrain_uint32(wait_us, min_delay_us, max_delay_us);
-            mask = chEvtWaitOneTimeout(group.dshot_event_mask, chTimeUS2I(wait_us));
->>>>>>> Copter4.4
 
             // no time left cancel and restart
             if (!mask) {
@@ -865,11 +803,7 @@ void RCOutput::push_local(void)
                     uint32_t width = (group.pwm_cfg.frequency/1000000U) * period_us;
                     pwmEnableChannel(group.pwm_drv, j, width);
                 }
-<<<<<<< HEAD
 #if HAL_DSHOT_ENABLED
-=======
-#ifndef DISABLE_DSHOT
->>>>>>> Copter4.4
                 else if (is_dshot_protocol(group.current_mode) || is_led_protocol(group.current_mode)) {
                     // set period_us to time for pulse output, to enable very fast rates
                     period_us = group.dshot_pulse_time_us;
@@ -964,11 +898,7 @@ bool RCOutput::mode_requires_dma(enum output_mode mode) const
     return false;
 #else
     return is_dshot_protocol(mode) || is_led_protocol(mode);
-<<<<<<< HEAD
 #endif //#if !HAL_DSHOT_ENABLED
-=======
-#endif //#ifdef DISABLE_DSHOT
->>>>>>> Copter4.4
 }
 
 void RCOutput::print_group_setup_error(pwm_group &group, const char* error_string)
@@ -1505,28 +1435,6 @@ void RCOutput::timer_tick(uint64_t time_out_us)
   periodic timer called from led thread. This is used for LED output
  */
 void RCOutput::led_timer_tick(uint64_t time_out_us)
-<<<<<<< HEAD
-=======
-{
-    if (serial_group) {
-        return;
-    }
-
-    // if we have enough time left send out LED data
-    if (serial_led_pending) {
-        serial_led_pending = false;
-        for (auto &group : pwm_group_list) {
-            serial_led_pending |= !serial_led_send(group);
-        }
-
-        // release locks on the groups that are pending in reverse order
-        dshot_collect_dma_locks(time_out_us, true);
-    }
-}
-
-// send dshot for all groups that support it
-void RCOutput::dshot_send_groups(uint64_t time_out_us)
->>>>>>> Copter4.4
 {
     if (in_soft_serial()) {
         return;
@@ -1721,11 +1629,7 @@ void RCOutput::dshot_send(pwm_group &group, uint64_t time_out_us)
 #endif
     // if we are sharing UP channels then it might have taken a long time to get here,
     // if there's not enough time to actually send a pulse then cancel
-<<<<<<< HEAD
 #if AP_HAL_SHARED_DMA_ENABLED
-=======
-
->>>>>>> Copter4.4
     if (AP_HAL::micros64() + group.dshot_pulse_time_us > time_out_us) {
         group.dma_handle->unlock();
         return;
@@ -1824,13 +1728,8 @@ bool RCOutput::serial_led_send(pwm_group &group)
         return true;
     }
 
-<<<<<<< HEAD
 #if HAL_DSHOT_ENABLED
     if (soft_serial_waiting() || !is_dshot_send_allowed(group.dshot_state)
-=======
-#ifndef DISABLE_DSHOT
-    if (irq.waiter || (group.dshot_state != DshotState::IDLE && group.dshot_state != DshotState::RECV_COMPLETE)
->>>>>>> Copter4.4
         || AP_HAL::micros64() - group.last_dmar_send_us < (group.dshot_pulse_time_us + 50)) {
         // doing serial output or DMAR input, don't send DShot pulses
         return false;
@@ -1883,10 +1782,7 @@ void RCOutput::send_pulses_DMAR(pwm_group &group, uint32_t buffer_length)
      */
 #ifdef HAL_GPIO_LINE_GPIO54
     TOGGLE_PIN_DEBUG(54);
-<<<<<<< HEAD
 #endif
-=======
->>>>>>> Copter4.4
 #if STM32_DMA_SUPPORTS_DMAMUX
     dmaSetRequestSource(group.dma, group.dma_up_channel);
 #endif
@@ -1928,11 +1824,7 @@ void RCOutput::send_pulses_DMAR(pwm_group &group, uint32_t buffer_length)
     dmaStreamEnable(group.dma);
     // record when the transaction was started
     group.last_dmar_send_us = AP_HAL::micros64();
-<<<<<<< HEAD
 #endif // HAL_DSHOT_ENABLED
-=======
-#endif //#ifndef DISABLE_DSHOT
->>>>>>> Copter4.4
 }
 
 /*

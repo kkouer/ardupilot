@@ -588,13 +588,10 @@ public:
         OPTION_IMPERIAL_MILES = 1U<<3,
         OPTION_DISABLE_CROSSHAIR = 1U<<4,
         OPTION_BF_ARROWS = 1U<<5,
-<<<<<<< HEAD
         OPTION_AVIATION_AH = 1U<<6,
 #if AP_OSD_EXTENDED_LNK_STATS
         OPTION_RF_MODE_ALONG_WITH_LQ = 1U<<7,
 #endif
-=======
->>>>>>> Copter4.4
     };
 
     enum {

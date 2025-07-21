@@ -180,24 +180,18 @@ public:
      */
     bool in_vtol_land_descent(void) const;
 
-<<<<<<< HEAD
     // Should we allow stick mixing from the pilot
     bool allow_stick_mixing() const;
 
-=======
->>>>>>> Copter4.4
     /*
       should we disable the TECS controller?
       only called when in an auto-throttle mode
      */
     bool should_disable_TECS() const;
 
-<<<<<<< HEAD
     // Get pilot throttle input with deadzone, this will return 50% throttle in failsafe!
     float get_throttle_input() const;
 
-=======
->>>>>>> Copter4.4
 private:
     AP_AHRS &ahrs;
 

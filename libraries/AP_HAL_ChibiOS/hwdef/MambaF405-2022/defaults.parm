@@ -1,11 +1,7 @@
 # setup for LEDs on chan9
 SERVO7_FUNCTION 120
 # Default VTX power to on
-<<<<<<< HEAD
 RELAY2_DEFAULT 1
-=======
-RELAY_DEFAULT 1
->>>>>>> Copter4.4
 # UART1 is RX input
 SERIAL1_PROTOCOL 23
 #  UART2 is GPS
@@ -18,7 +14,3 @@ OSD_TYPE 1
 SERIAL4_PROTOCOL -1
 # UART6 is ESC Telem
 SERIAL6_PROTOCOL 16
-<<<<<<< HEAD
-
-=======
->>>>>>> Copter4.4

@@ -363,10 +363,7 @@ void AR_PosControl::get_srate(float &velocity_srate)
     velocity_srate = _pid_vel.get_pid_info_x().slew_rate;
 }
 
-<<<<<<< HEAD
 #if HAL_LOGGING_ENABLED
-=======
->>>>>>> Copter4.4
 // write PSC logs
 void AR_PosControl::write_log()
 {

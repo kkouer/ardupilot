@@ -39,10 +39,7 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Parachute/AP_Parachute.h>
 #include <AP_Vehicle/AP_Vehicle.h>
-<<<<<<< HEAD
 #include <AP_DroneCAN/AP_DroneCAN.h>
-=======
->>>>>>> Copter4.4
 #include <stdio.h>
 #include <GCS_MAVLink/GCS.h>
 
