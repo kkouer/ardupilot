@@ -214,7 +214,11 @@ const AP_Param::GroupInfo AP_Notify::var_info[] = {
     // @Param: LED_TYPES
     // @DisplayName: LED Driver Types
     // @Description: Controls what types of LEDs will be enabled
+<<<<<<< HEAD
     // @Bitmask: 0:Built-in LED, 1:Internal ToshibaLED, 2:External ToshibaLED, 3:External PCA9685, 4:Oreo LED, 5:DroneCAN, 6:NCP5623 External, 7:NCP5623 Internal, 8:NeoPixel, 9:ProfiLED, 10:Scripting, 11:DShot, 12:ProfiLED_SPI, 13:LP5562 External, 14: LP5562 Internal, 15:IS31FL3195 External, 16: IS31FL3195 Internal, 17: DiscreteRGB, 18: NeoPixelRGB
+=======
+    // @Bitmask: 0:Built-in LED, 1:Internal ToshibaLED, 2:External ToshibaLED, 3:External PCA9685, 4:Oreo LED, 5:DroneCAN, 6:NCP5623 External, 7:NCP5623 Internal, 8:NeoPixel, 9:ProfiLED, 10:Scripting, 11:DShot, 12:ProfiLED_SPI, 13:LP5562 External, 14: LP5562 Internal, 15:IS31FL3195 External, 16: IS31FL3195 Internal
+>>>>>>> Copter4.4
     // @User: Advanced
     AP_GROUPINFO("LED_TYPES", 6, AP_Notify, _led_type, DEFAULT_NTF_LED_TYPES),
 
@@ -381,7 +385,10 @@ void AP_Notify::add_backends(void)
             case Notify_LED_DShot:
                 ADD_BACKEND(new DShotLED());
                 break;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> Copter4.4
 #if AP_NOTIFY_LP5562_ENABLED
             case Notify_LED_LP5562_I2C_External:
                 FOREACH_I2C_EXTERNAL(b) {
@@ -406,6 +413,7 @@ void AP_Notify::add_backends(void)
                 }
                 break;
 #endif
+<<<<<<< HEAD
 #if AP_NOTIFY_DISCRETE_RGB_ENABLED
             case Notify_LED_DiscreteRGB:
                 ADD_BACKEND(new DiscreteRGBLed(DISCRETE_RGB_RED_PIN,
@@ -414,6 +422,8 @@ void AP_Notify::add_backends(void)
                                                DISCRETE_RGB_POLARITY));
                 break;
 #endif
+=======
+>>>>>>> Copter4.4
         }
     }
 

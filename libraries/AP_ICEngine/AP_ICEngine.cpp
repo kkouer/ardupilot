@@ -498,7 +498,11 @@ bool AP_ICEngine::engine_control(float start_control, float cold_start, float he
         return true;
     }
     if (state == ICE_RUNNING || state == ICE_START_DELAY || state == ICE_STARTING) {
+<<<<<<< HEAD
         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Engine: already running");
+=======
+        gcs().send_text(MAV_SEVERITY_INFO, "Engine: already running");
+>>>>>>> Copter4.4
         return false;
     }
     RC_Channel *c = rc().channel(start_chan-1);

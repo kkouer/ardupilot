@@ -464,7 +464,10 @@ def run_step(step):
 
     binary = binary_path(step, debug=opts.debug)
 
+<<<<<<< HEAD
     # see if we need any supplementary binaries
+=======
+>>>>>>> Copter4.4
     supplementary_binaries = []
     for k in supplementary_test_binary_map.keys():
         if step.startswith(k):

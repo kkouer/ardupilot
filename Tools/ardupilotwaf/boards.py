@@ -284,7 +284,11 @@ class Board:
             env.DEFINES.update(
                 HAL_DEBUG_BUILD = 1,
             )
+<<<<<<< HEAD
         elif cfg.options.debug_symbols:
+=======
+        elif cfg.options.g:
+>>>>>>> Copter4.4
             env.CFLAGS += [
                 '-g',
             ]

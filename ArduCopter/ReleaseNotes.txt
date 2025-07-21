@@ -1,5 +1,6 @@
 ArduPilot Copter Release Notes:
 ------------------------------------------------------------------
+<<<<<<< HEAD
 Release 4.5.7 08 Oct 2024
 
 Changes from 4.5.7-beta1
@@ -599,6 +600,8 @@ Changes from 4.4.4
     - VTX_MAX_POWER restored (allows setting radio's power)
     - Yaw limit calculations fixed
 ------------------------------------------------------------------
+=======
+>>>>>>> Copter4.4
 Copter 4.4.4 19-Dec-2023 / 4.4.4-beta1 05-Dec-2023
 Changes from 4.4.3
 1) Autopilot related enhancement and fixes
@@ -972,6 +975,7 @@ Changes from 4.3.6
     - Webots 2023a simulator support
     - XPlane support for wider range of aircraft
 ------------------------------------------------------------------
+<<<<<<< HEAD
 Copter 4.3.8 24-Aug-2023 / 4.3.8-beta1 12-Aug-2023
 Changes from 4.3.7
 1) Bug fixes
@@ -990,6 +994,8 @@ Changes from 4.3.6
     e) Memory corruption bug in the STM32H757 (very rare)
     f) RC input on IOMCU bug fix (RC might not be regained if lost)
 ------------------------------------------------------------------
+=======
+>>>>>>> Copter4.4
 Copter 4.3.6 05-Apr-2023 / 4.3.6-beta1, 4.3.6--beta2 27-Mar-2023
 Changes from 4.3.5
 1) Bi-directional DShot fix for possible motor stop approx 72min after startup 

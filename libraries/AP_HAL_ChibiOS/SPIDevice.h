@@ -26,7 +26,11 @@
 #include "Device.h"
 
 #ifndef HAL_SPI_SCK_SAVE_RESTORE
+<<<<<<< HEAD
 #define HAL_SPI_SCK_SAVE_RESTORE !defined(STM32F1)
+=======
+#define HAL_SPI_SCK_SAVE_RESTORE FALSE
+>>>>>>> Copter4.4
 #endif
 
 namespace ChibiOS {

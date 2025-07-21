@@ -164,7 +164,10 @@ class SizeCompareBranches(object):
             'Pixhawk1-bdshot',
             'SITL_arm_linux_gnueabihf',
             'RADIX2HD',
+<<<<<<< HEAD
             'canzero',
+=======
+>>>>>>> Copter4.4
         ])
 
         # blacklist all linux boards for bootloader build:
@@ -208,7 +211,10 @@ class SizeCompareBranches(object):
             'esp32tomte76',
             'esp32nick',
             'esp32s3devkit',
+<<<<<<< HEAD
             'esp32s3empty',
+=======
+>>>>>>> Copter4.4
             'esp32icarous',
             'esp32diy',
         ]
@@ -422,7 +428,11 @@ class SizeCompareBranches(object):
                 break
             jobs = None
             if self.jobs is not None:
+<<<<<<< HEAD
                 jobs = int(self.jobs / self.n_threads)
+=======
+                jobs = int(self.jobs / self.num_threads_remaining)
+>>>>>>> Copter4.4
                 if jobs <= 0:
                     jobs = 1
             try:
@@ -442,12 +452,20 @@ class SizeCompareBranches(object):
             self.failure_exceptions.append(result)
 
     def run_build_tasks_in_parallel(self, tasks):
+<<<<<<< HEAD
         self.n_threads = self.parallel_copies
+=======
+        n_threads = self.parallel_copies
+        if len(tasks) < n_threads:
+            n_threads = len(tasks)
+        self.num_threads_remaining = n_threads
+>>>>>>> Copter4.4
 
         # shared list for the threads:
         self.parallel_tasks = copy.copy(tasks)  # make this an argument instead?!
         threads = []
         self.thread_exit_result_queue = Queue.Queue()
+<<<<<<< HEAD
         tstart = time.time()
         self.failure_exceptions = []
 
@@ -465,6 +483,20 @@ class SizeCompareBranches(object):
                 t.start()
                 threads.append(t)
                 thread_number += 1
+=======
+        for i in range(0, n_threads):
+            t = threading.Thread(
+                target=self.parallel_thread_main,
+                name=f'task-builder-{i}',
+                args=[i],
+            )
+            t.start()
+            threads.append(t)
+        tstart = time.time()
+        self.failure_exceptions = []
+
+        while len(threads):
+>>>>>>> Copter4.4
 
             self.check_result_queue()
 
@@ -474,9 +506,16 @@ class SizeCompareBranches(object):
                 if thread.is_alive():
                     new_threads.append(thread)
             threads = new_threads
+<<<<<<< HEAD
             self.progress(
                 f"remaining-tasks={len(self.parallel_tasks)} " +
                 f"failed-threads={len(self.failure_exceptions)} elapsed={int(time.time() - tstart)}s")  # noqa
+=======
+            self.num_threads_remaining = len(threads)
+            self.progress(
+                f"remaining-tasks={len(self.parallel_tasks)} " +
+                f"remaining-threads={len(threads)} failed-threads={len(self.failure_exceptions)} elapsed={int(time.time() - tstart)}s")  # noqa
+>>>>>>> Copter4.4
 
             # write out a progress CSV:
             task_results = []

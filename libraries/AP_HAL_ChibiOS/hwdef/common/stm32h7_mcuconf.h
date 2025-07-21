@@ -185,6 +185,12 @@
 #define STM32_PLL1_DIVQ_VALUE               10
 #endif
 #define STM32_PLL1_DIVP_VALUE               2
+<<<<<<< HEAD
+=======
+#ifndef STM32_PLL1_DIVQ_VALUE
+#define STM32_PLL1_DIVQ_VALUE               10
+#endif
+>>>>>>> Copter4.4
 #define STM32_PLL1_DIVR_VALUE               2
 
 #define STM32_PLL2_DIVN_VALUE               75

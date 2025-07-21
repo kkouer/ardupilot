@@ -299,6 +299,11 @@ void NavEKF3_core::readMagData()
     } else if (wasLearningCompass_ms != 0 && imuSampleTime_ms - wasLearningCompass_ms > 1000) {
         // allow time for old data to clear the buffer before signalling other code that compass data can be used
         wasLearningCompass_ms = 0;
+        // force a new yaw alignment 1s after learning completes. The
+        // delay is to ensure any buffered mag samples are discarded
+        yawAlignComplete = false;
+        yawAlignGpsValidCount = 0;
+        InitialiseVariablesMag();
     }
 
     // If the magnetometer has timed out (been rejected for too long), we find another magnetometer to use if available
@@ -867,6 +872,9 @@ void NavEKF3_core::readAirSpdData()
 *              Range Beacon Measurements                *
 ********************************************************/
 
+uint16_t indexxx = 0;
+uint16_t bcnUnFuseCounter = 0;
+bool isGetBeaconCount = false;
 // check for new range beacon data and push to data buffer if available
 void NavEKF3_core::readRngBcnData()
 {
@@ -877,9 +885,22 @@ void NavEKF3_core::readRngBcnData()
     const AP_DAL_Beacon *beacon = dal.beacon();
 
     // exit immediately if no beacon object
-    if (beacon == nullptr) {
+    if (beacon == nullptr || beacon->count() == 0) {
         return;
     }
+    //kkouer added check the init beacon count, if non-zero just tip
+    if(indexxx>1000 && !isGetBeaconCount)
+    {
+        if(beacon->count() == 0)
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "beacon In Use %d ", beacon->count());
+        if(beacon->count() > 0  )
+        {
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "beacon In Use %d ", beacon->count());
+            isGetBeaconCount = true;
+        }
+        indexxx = 0;
+    }
+    indexxx++;
 
     // get the number of beacons in use
     rngBcn.N = MIN(beacon->count(), ARRAY_SIZE(rngBcn.lastTime_ms));
@@ -911,6 +932,8 @@ void NavEKF3_core::readRngBcnData()
             // TODO the range library should provide the noise/accuracy estimate for each beacon
             rngBcnDataNew.rngErr = frontend->_rngBcnNoise;
 
+            //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "rngErr %.2f ", rngBcnDataNew.rngErr);
+
             // set the range measurement
             rngBcnDataNew.rng = beacon->beacon_distance(index);
 
@@ -928,6 +951,8 @@ void NavEKF3_core::readRngBcnData()
 
             // Save data into the buffer to be fused when the fusion time horizon catches up with it
             rngBcn.storedRange.push(rngBcnDataNew);
+            // if(index == 2)
+            // GCS_SEND_TEXT(MAV_SEVERITY_INFO, "beacon new push id:%d r: %0.3f, re:%0.3f ",index, rngBcnDataNew.rng, rngBcnDataNew.rngErr);
         }
     }
 
@@ -954,6 +979,7 @@ void NavEKF3_core::readRngBcnData()
                 if (beacon->get_origin(origin_loc)) {
                     setOriginLLH(origin_loc);
 
+                    //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "beacon set originLLH");
                     // set the NE earth magnetic field states using the published declination
                     // and set the corresponding variances and covariances
                     alignMagStateDeclination();
@@ -968,12 +994,24 @@ void NavEKF3_core::readRngBcnData()
     } else {
         rngBcn.goodToAlign = false;
     }
-
+    //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "___BCGood %d imu:%ld BcnLast3D:%ld", rngBcnGoodToAlign, imuSampleTime_ms, rngBcnLast3DmeasTime_ms);
     // Check the buffer for measurements that have been overtaken by the fusion time horizon and need to be fused
     rngBcn.dataToFuse = rngBcn.storedRange.recall(rngBcn.dataDelayed, imuDataDelayed.time_ms);
+    // if(rngBcnDataDelayed.beacon_ID == 2)
+    //    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Delayed id %d x:%.3f y:%.3f", rngBcnDataDelayed.beacon_ID, rngBcnDataDelayed.beacon_posNED.x, rngBcnDataDelayed.beacon_posNED.y);
+    if(!rngBcn.dataToFuse && beacon->count() != 0)
+    {
+        bcnUnFuseCounter++;
+        if (bcnUnFuseCounter%10==1)  
+        {
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "rngBcnDataNOTToFuse count %d", bcnUnFuseCounter);
+        }
+        
+    }
 
     // Correct the range beacon earth frame origin for estimated offset relative to the EKF earth frame origin
     if (rngBcn.dataToFuse) {
+        //GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Delayed id %d time %ld x:%.3f y:%.3f", rngBcnDataDelayed.beacon_ID, rngBcnDataDelayed.time_ms, rngBcnDataDelayed.beacon_posNED.x, rngBcnDataDelayed.beacon_posNED.y);
         rngBcn.dataDelayed.beacon_posNED.x += rngBcn.posOffsetNED.x;
         rngBcn.dataDelayed.beacon_posNED.y += rngBcn.posOffsetNED.y;
     }

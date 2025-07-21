@@ -151,9 +151,19 @@ else
 fi
 
 # Lists of packages to install
+<<<<<<< HEAD
 BASE_PKGS="build-essential ccache g++ gawk git make wget valgrind screen"
 PYTHON_PKGS="future lxml pymavlink pyserial MAVProxy pexpect geocoder empy==3.3.4 ptyprocess dronecan"
 PYTHON_PKGS="$PYTHON_PKGS flake8 junitparser"
+=======
+BASE_PKGS="build-essential ccache g++ gawk git make wget"
+if [ ${RELEASE_CODENAME} == 'bionic' ]; then
+    # use fixed version for package that drop python2 support
+    PYTHON_PKGS="future lxml pymavlink MAVProxy pexpect flake8==3.7.9 requests==2.27.1 monotonic==1.6 geocoder empy==3.3.4 configparser==4.0.2 click==7.1.2 decorator==4.4.2 dronecan"
+else
+    PYTHON_PKGS="future lxml pymavlink MAVProxy pexpect flake8 geocoder empy==3.3.4 dronecan"
+fi
+>>>>>>> Copter4.4
 
 # add some Python packages required for commonly-used MAVProxy modules and hex file generation:
 if [[ $SKIP_AP_EXT_ENV -ne 1 ]]; then

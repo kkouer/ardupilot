@@ -27,6 +27,9 @@ class AP_Beacon_Backend
 public:
     // constructor. This incorporates initialisation as well.
     AP_Beacon_Backend(AP_Beacon &frontend);
+    
+    //kkouer added
+    bool isParsedSettingFrame = false;
 
     // return true if sensor is basically healthy (we are receiving data)
     virtual bool healthy() = 0;

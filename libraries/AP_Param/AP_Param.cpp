@@ -111,9 +111,12 @@ struct AP_Param::param_override *AP_Param::param_overrides;
 uint16_t AP_Param::param_overrides_len;
 uint16_t AP_Param::num_param_overrides;
 uint16_t AP_Param::num_read_only;
+<<<<<<< HEAD
 
 // goes true if we run out of param space
 bool AP_Param::eeprom_full;
+=======
+>>>>>>> Copter4.4
 
 ObjectBuffer_TS<AP_Param::param_save> AP_Param::save_queue{30};
 bool AP_Param::registered_save_handler;
@@ -2299,7 +2302,10 @@ bool AP_Param::read_param_defaults_file(const char *filename, bool last_pass, ui
         return false;
     }
 
+<<<<<<< HEAD
     bool done_all = true;
+=======
+>>>>>>> Copter4.4
     char line[100];
     while (AP::FS().fgets(line, sizeof(line)-1, file_apfs)) {
         char *pname;
@@ -2479,6 +2485,11 @@ void AP_Param::load_param_defaults(const volatile char *ptr, int32_t length, boo
 
     param_overrides_len = num_defaults;
 
+<<<<<<< HEAD
+=======
+    const volatile char *ptr = param_defaults_data.data;
+    int32_t length = param_defaults_data.length;
+>>>>>>> Copter4.4
     uint16_t idx = 0;
     
     while (idx < num_defaults && length > 0) {

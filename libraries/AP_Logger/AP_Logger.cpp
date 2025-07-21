@@ -178,6 +178,7 @@ const AP_Param::GroupInfo AP_Logger::var_info[] = {
     // @Increment: 0.1
     // @User: Standard
     AP_GROUPINFO("_DARM_RATEMAX",  11, AP_Logger, _params.disarm_ratemax, 0),
+<<<<<<< HEAD
 
     // @Param: _MAX_FILES
     // @DisplayName: Maximum number of log files
@@ -188,6 +189,9 @@ const AP_Param::GroupInfo AP_Logger::var_info[] = {
     // @RebootRequired: True
     AP_GROUPINFO("_MAX_FILES", 12, AP_Logger, _params.max_log_files, MAX_LOG_FILES),
 
+=======
+    
+>>>>>>> Copter4.4
     AP_GROUPEND
 };
 

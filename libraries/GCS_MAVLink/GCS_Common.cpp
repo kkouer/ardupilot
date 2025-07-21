@@ -1346,6 +1346,7 @@ bool GCS_MAVLINK_InProgress::conclude(MAV_RESULT result)
 }
 
 GCS_MAVLINK_InProgress *GCS_MAVLINK_InProgress::get_task(MAV_CMD mav_cmd, GCS_MAVLINK_InProgress::Type t, uint8_t sysid, uint8_t compid, mavlink_channel_t chan)
+GCS_MAVLINK_InProgress *GCS_MAVLINK_InProgress::get_task(MAV_CMD mav_cmd, GCS_MAVLINK_InProgress::Type t, uint8_t sysid, uint8_t compid, mavlink_channel_t chan)
 {
     // we can't have two outstanding tasks for the same command from
     // the same mavlink node or the result is ambiguous:
@@ -1364,6 +1365,7 @@ GCS_MAVLINK_InProgress *GCS_MAVLINK_InProgress::get_task(MAV_CMD mav_cmd, GCS_MA
         if (_task.task != Type::NONE) {
             continue;
         }
+        _task.chan = chan;
         _task.chan = chan;
         _task.task = t;
         _task.mav_cmd = mav_cmd;
@@ -3616,6 +3618,27 @@ void GCS_MAVLINK::handle_data_packet(const mavlink_message_t &msg)
 #endif
 }
 
+/*
+  handle a DATA16 message kkouer add
+ */
+void GCS_MAVLINK::handle_data_16_packet(const mavlink_message_t &msg)
+{
+    mavlink_data16_t m;
+    mavlink_msg_data16_decode(&msg, &m);
+    switch (m.type) {
+    case 01:
+        gcs().send_text(MAV_SEVERITY_INFO, "get data16 with ID 1, the value:%s", m.data);
+        hal.serial(4)->write((uint8_t*)m.data , m.len);
+    break;
+    case 43:
+        gcs().send_text(MAV_SEVERITY_INFO, "get data16 with ID 43");
+    break;
+    default:
+        // unknown
+        break;
+    }
+}
+
 #if HAL_VISUALODOM_ENABLED
 void GCS_MAVLINK::handle_vision_position_delta(const mavlink_message_t &msg)
 {
@@ -4120,6 +4143,10 @@ void GCS_MAVLINK::handle_message(const mavlink_message_t &msg)
             handle_request_data_stream(msg);
         }
         break;
+    //kkouer add data16 date handle
+    case MAVLINK_MSG_ID_DATA16:
+        handle_data_16_packet(msg);
+        break;
 
     case MAVLINK_MSG_ID_DATA96:
         handle_data_packet(msg);
@@ -4434,14 +4461,17 @@ MAV_RESULT GCS_MAVLINK::_handle_command_preflight_calibration_baro(const mavlink
     AP_Airspeed *airspeed = AP_Airspeed::get_singleton();
     if (airspeed != nullptr) {
         GCS_MAVLINK_InProgress *task = GCS_MAVLINK_InProgress::get_task(MAV_CMD_PREFLIGHT_CALIBRATION, GCS_MAVLINK_InProgress::Type::AIRSPEED_CAL, msg.sysid, msg.compid, chan);
+        GCS_MAVLINK_InProgress *task = GCS_MAVLINK_InProgress::get_task(MAV_CMD_PREFLIGHT_CALIBRATION, GCS_MAVLINK_InProgress::Type::AIRSPEED_CAL, msg.sysid, msg.compid, chan);
         if (task == nullptr) {
             return MAV_RESULT_TEMPORARILY_REJECTED;
         }
         airspeed->calibrate(false);
         return MAV_RESULT_IN_PROGRESS;
+        return MAV_RESULT_IN_PROGRESS;
     }
 #endif
 
+    return MAV_RESULT_ACCEPTED;
     return MAV_RESULT_ACCEPTED;
 }
 
@@ -5090,6 +5120,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_storage_format(const mavlink_command_int_
         !is_equal(packet.param2, 1.0f)) {
         return MAV_RESULT_UNSUPPORTED;
     }
+    GCS_MAVLINK_InProgress *task = GCS_MAVLINK_InProgress::get_task(MAV_CMD_STORAGE_FORMAT, GCS_MAVLINK_InProgress::Type::SD_FORMAT, msg.sysid, msg.compid, chan);
     GCS_MAVLINK_InProgress *task = GCS_MAVLINK_InProgress::get_task(MAV_CMD_STORAGE_FORMAT, GCS_MAVLINK_InProgress::Type::SD_FORMAT, msg.sysid, msg.compid, chan);
     if (task == nullptr) {
         return MAV_RESULT_TEMPORARILY_REJECTED;

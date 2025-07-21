@@ -149,7 +149,11 @@ def options(opt):
         default=False,
         help='Configure as debug variant.')
 
+<<<<<<< HEAD
     g.add_option('--debug-symbols', '-g',
+=======
+    g.add_option('-g',
+>>>>>>> Copter4.4
         action='store_true',
         default=False,
         help='Add debug symbolds to build.')
@@ -519,10 +523,13 @@ def configure(cfg):
         # also in env for hrt.c
         cfg.env.AP_BOARD_START_TIME = cfg.options.board_start_time
 
+<<<<<<< HEAD
     # require python 3.8.x or later
     cfg.load('python')
     cfg.check_python_version(minver=(3,6,9))
 
+=======
+>>>>>>> Copter4.4
     cfg.load('ap_library')
 
     cfg.msg('Setting board to', cfg.options.board)

@@ -57,6 +57,14 @@ public:
 
     // reset remaining percentage to given value
     bool reset_remaining(float percentage) override;
+<<<<<<< HEAD:libraries/AP_BattMonitor/AP_BattMonitor_DroneCAN.h
+=======
+
+private:
+    void handle_battery_info(const BattInfoCb &cb);
+    void handle_battery_info_aux(const BattInfoAuxCb &cb);
+    void update_interim_state(const float voltage, const float current, const float temperature_K, const uint8_t soc);
+>>>>>>> Copter4.4:libraries/AP_BattMonitor/AP_BattMonitor_UAVCAN.h
 
 private:
     void handle_battery_info(const uavcan_equipment_power_BatteryInfo &msg);

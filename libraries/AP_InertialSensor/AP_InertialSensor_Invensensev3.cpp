@@ -829,10 +829,13 @@ void AP_InertialSensor_Invensensev3::set_filter_and_scaling(void)
     case Invensensev3_Type::ICM45686:
         break;
     }
+<<<<<<< HEAD
 
     // enable gyro and accel in low-noise modes
     register_write(INV3REG_PWR_MGMT0, 0x0F);
     hal.scheduler->delay_microseconds(300);
+=======
+>>>>>>> Copter4.4
 }
 
 /*

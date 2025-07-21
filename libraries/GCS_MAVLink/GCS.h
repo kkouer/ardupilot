@@ -694,6 +694,9 @@ protected:
     void send_hwstatus();
     void handle_data_packet(const mavlink_message_t &msg);
 
+    //kkouer added
+    void handle_data_16_packet(const mavlink_message_t &msg);
+
     // these two methods are called after current_loc is updated:
     virtual int32_t global_position_int_alt() const;
     virtual int32_t global_position_int_relative_alt() const;

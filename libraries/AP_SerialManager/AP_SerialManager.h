@@ -24,6 +24,100 @@
 #include "AP_SerialManager_config.h"
 #include <AP_Param/AP_Param.h>
 
+<<<<<<< HEAD
+=======
+#ifdef HAL_UART_NUM_SERIAL_PORTS
+#if HAL_UART_NUM_SERIAL_PORTS >= 4
+#define SERIALMANAGER_NUM_PORTS HAL_UART_NUM_SERIAL_PORTS
+#else
+// we need a minimum of 4 to allow for a GPS due to the odd ordering
+// of hal.uartB as SERIAL3
+#define SERIALMANAGER_NUM_PORTS 4
+#endif
+#else
+// assume max 8 ports
+#define SERIALMANAGER_NUM_PORTS 8
+#endif
+
+/*
+  array size for state[]. This needs to be at least
+  SERIALMANAGER_NUM_PORTS, but we want it to be the same length on
+  similar boards to get the ccache efficiency up. This wastes a small
+  amount of memory, but makes a huge difference to the build times
+ */
+#if SERIALMANAGER_NUM_PORTS > 10 || SERIALMANAGER_NUM_PORTS < 5
+#define SERIALMANAGER_MAX_PORTS SERIALMANAGER_NUM_PORTS
+#else
+#define SERIALMANAGER_MAX_PORTS 10
+#endif
+
+
+ // console default baud rates and buffer sizes
+#ifdef HAL_SERIAL0_BAUD_DEFAULT
+# define AP_SERIALMANAGER_CONSOLE_BAUD          HAL_SERIAL0_BAUD_DEFAULT
+#else
+# define AP_SERIALMANAGER_CONSOLE_BAUD          115200
+#endif
+# define AP_SERIALMANAGER_CONSOLE_BUFSIZE_RX    128
+# define AP_SERIALMANAGER_CONSOLE_BUFSIZE_TX    512
+
+// mavlink default baud rates and buffer sizes
+#define AP_SERIALMANAGER_MAVLINK_BAUD           57600
+#define AP_SERIALMANAGER_MAVLINK_BUFSIZE_RX     128
+#define AP_SERIALMANAGER_MAVLINK_BUFSIZE_TX     256
+
+// LTM buffer sizes
+#define AP_SERIALMANAGER_LTM_BUFSIZE_RX         0
+#define AP_SERIALMANAGER_LTM_BUFSIZE_TX         32
+
+// FrSky default baud rates, use default buffer sizes
+#define AP_SERIALMANAGER_FRSKY_D_BAUD           9600
+#define AP_SERIALMANAGER_FRSKY_SPORT_BAUD       57600
+#define AP_SERIALMANAGER_FRSKY_BUFSIZE_RX       0
+#define AP_SERIALMANAGER_FRSKY_BUFSIZE_TX       0
+
+// GPS default baud rates and buffer sizes
+// we need a 256 byte buffer for some GPS types (eg. UBLOX)
+#define AP_SERIALMANAGER_GPS_BAUD               38400
+#define AP_SERIALMANAGER_GPS_BUFSIZE_RX         256
+#define AP_SERIALMANAGER_GPS_BUFSIZE_TX         16
+
+// AlexMos Gimbal protocol default baud rates and buffer sizes
+#define AP_SERIALMANAGER_ALEXMOS_BAUD           115200
+#define AP_SERIALMANAGER_ALEXMOS_BUFSIZE_RX     128
+#define AP_SERIALMANAGER_ALEXMOS_BUFSIZE_TX     128
+
+#define AP_SERIALMANAGER_GIMBAL_BAUD            115200
+#define AP_SERIALMANAGER_GIMBAL_BUFSIZE_RX      128
+#define AP_SERIALMANAGER_GIMBAL_BUFSIZE_TX      128
+
+#define AP_SERIALMANAGER_VOLZ_BAUD           115
+#define AP_SERIALMANAGER_VOLZ_BUFSIZE_RX     128
+#define AP_SERIALMANAGER_VOLZ_BUFSIZE_TX     128
+
+#define AP_SERIALMANAGER_ROBOTIS_BUFSIZE_RX  128
+#define AP_SERIALMANAGER_ROBOTIS_BUFSIZE_TX  128
+
+// MegaSquirt EFI protocol
+#define AP_SERIALMANAGER_EFI_MS_BAUD           115
+#define AP_SERIALMANAGER_EFI_MS_BUFSIZE_RX     512
+#define AP_SERIALMANAGER_EFI_MS_BUFSIZE_TX     16
+
+// SBUS servo outputs
+#define AP_SERIALMANAGER_SBUS1_BAUD           100000
+#define AP_SERIALMANAGER_SBUS1_BUFSIZE_RX     16
+#define AP_SERIALMANAGER_SBUS1_BUFSIZE_TX     32
+
+#define AP_SERIALMANAGER_SLCAN_BAUD             115200
+#define AP_SERIALMANAGER_SLCAN_BUFSIZE_RX       128
+#define AP_SERIALMANAGER_SLCAN_BUFSIZE_TX       128
+
+// MSP protocol default buffer sizes
+#define AP_SERIALMANAGER_MSP_BUFSIZE_RX     128
+#define AP_SERIALMANAGER_MSP_BUFSIZE_TX     256
+#define AP_SERIALMANAGER_MSP_BAUD           115200
+
+>>>>>>> Copter4.4
 class AP_SerialManager {
 public:
     AP_SerialManager();

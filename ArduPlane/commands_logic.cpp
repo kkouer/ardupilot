@@ -12,7 +12,10 @@ bool Plane::start_command(const AP_Mission::Mission_Command& cmd)
     plane.target_altitude.terrain_following_pending = false;
 #endif
 
+<<<<<<< HEAD
 #if HAL_LOGGING_ENABLED
+=======
+>>>>>>> Copter4.4
     // log when new commands start
     if (should_log(MASK_LOG_CMD)) {
         logger.Write_Mission_Cmd(mission, cmd);

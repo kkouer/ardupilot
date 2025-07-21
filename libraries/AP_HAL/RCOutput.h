@@ -229,7 +229,10 @@ public:
     static bool is_led_protocol(const enum output_mode mode) {
       switch (mode) {
       case MODE_NEOPIXEL:
+<<<<<<< HEAD
       case MODE_NEOPIXELRGB:
+=======
+>>>>>>> Copter4.4
       case MODE_PROFILED:
         return true;
       default:

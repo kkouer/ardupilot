@@ -1,5 +1,6 @@
 #include "AP_NavEKF3.h"
 #include "AP_NavEKF3_core.h"
+#include <GCS_MAVLink/GCS.h>
 
 #if EK3_FEATURE_BEACON_FUSION
 
@@ -19,8 +20,17 @@ void NavEKF3_core::SelectRngBcnFusion()
             if ((frontend->sources.getPosXYSource() == AP_NavEKF_Source::SourceXY::BEACON) && rngBcn.alignmentCompleted) {
                 if (!rngBcn.originEstInit) {
                     rngBcn.originEstInit = true;
-                    rngBcn.posOffsetNED.x = rngBcn.receiverPos.x - stateStruct.position.x;
-                    rngBcn.posOffsetNED.y = rngBcn.receiverPos.y - stateStruct.position.y;
+                    // bcnPosOffsetNED.x = receiverPos.x - stateStruct.position.x;
+                    // bcnPosOffsetNED.y = receiverPos.y - stateStruct.position.y;
+                    //kkouer added manually align bcn offset
+                    rngBcn.posOffsetNED.x = -rngBcn.vehiclePosNED.x;
+                    rngBcn.posOffsetNED.y = -rngBcn.vehiclePosNED.y;
+                    rngBcn.receiverPos.x = stateStruct.position.x;
+                    rngBcn.receiverPos.y = stateStruct.position.y;
+
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Align     x:%.3f  y:%.3f",rngBcn.posOffsetNED.x,rngBcn.posOffsetNED.y);
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "state     x:%.3f  y:%.3f ",stateStruct.position.x,stateStruct.position.y);
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "id %d rec.x:%.3f  y:%.3f ",core_index,rngBcn.receiverPos.x,rngBcn.receiverPos.y);
                 }
                 // beacons are used as the primary means of position reference
                 FuseRngBcn();

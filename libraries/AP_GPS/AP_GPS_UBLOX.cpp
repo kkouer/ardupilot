@@ -1047,13 +1047,21 @@ AP_GPS_UBLOX::_parse_gps(void)
                           likely this device does not support fetching multiple keys at once, go one at a time
                         */
                         if (active_config.fetch_index == -1) {
+<<<<<<< HEAD
                             CFG_Debug("NACK starting %u", unsigned(active_config.count));
+=======
+                            Debug("NACK starting %u", unsigned(active_config.count));
+>>>>>>> Copter4.4
                             active_config.fetch_index = 0;
                         } else {
                             // the device does not support the config key we asked for,
                             // consider the bit as done
                             active_config.done_mask |= (1U<<active_config.fetch_index);
+<<<<<<< HEAD
                             CFG_Debug("NACK %d 0x%x done=0x%x",
+=======
+                            Debug("NACK %d 0x%x done=0x%x",
+>>>>>>> Copter4.4
                                      int(active_config.fetch_index),
                                      unsigned(active_config.list[active_config.fetch_index].key),
                                      unsigned(active_config.done_mask));
@@ -1310,7 +1318,11 @@ AP_GPS_UBLOX::_parse_gps(void)
                         active_config.fetch_index++;
                         if (active_config.fetch_index < active_config.count) {
                             _configure_valget(active_config.list[active_config.fetch_index].key);
+<<<<<<< HEAD
                             CFG_Debug("valget %d 0x%x", int(active_config.fetch_index),
+=======
+                            Debug("valget %d 0x%x", int(active_config.fetch_index),
+>>>>>>> Copter4.4
                                   unsigned(active_config.list[active_config.fetch_index].key));
                         }
                     }

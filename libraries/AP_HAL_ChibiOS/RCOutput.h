@@ -105,6 +105,14 @@ public:
       timer push (for oneshot min rate)
      */
     void timer_tick(uint64_t last_run_us);
+<<<<<<< HEAD
+=======
+
+    /*
+      LED push
+     */
+    void led_timer_tick(uint64_t last_run_us);
+>>>>>>> Copter4.4
 
     /*
       LED push
@@ -271,7 +279,11 @@ public:
       trigger send of serial LED data
      */
     bool serial_led_send(const uint16_t chan) override;
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> Copter4.4
     /*
       rcout thread
      */
@@ -462,6 +474,17 @@ private:
 #endif
 
 #if HAL_SERIAL_ESC_COMM_ENABLED
+    /*
+      timer thread for use by led events
+     */
+    thread_t *led_thread_ctx;
+
+    /*
+      mutex to control LED thread creation
+     */
+    HAL_Semaphore led_thread_sem;
+    bool led_thread_created;
+
     /*
       structure for IRQ handler for soft-serial input
      */
@@ -678,6 +701,7 @@ private:
     uint16_t create_dshot_packet(const uint16_t value, bool telem_request, bool bidir_telem);
     void fill_DMA_buffer_dshot(dmar_uint_t *buffer, uint8_t stride, uint16_t packet, uint16_t clockmul);
 
+<<<<<<< HEAD
     // event to allow dshot cascading
 #if defined(HAL_TIM_UP_SHARED)
     static const eventmask_t DSHOT_CASCADE = EVENT_MASK(16);
@@ -687,13 +711,18 @@ private:
     static const eventmask_t EVT_PWM_SEND  = EVENT_MASK(11);
     static const eventmask_t EVT_PWM_SYNTHETIC_SEND  = EVENT_MASK(13);
 
+=======
+>>>>>>> Copter4.4
     void dshot_send_groups(uint64_t time_out_us);
     void dshot_send(pwm_group &group, uint64_t time_out_us);
     bool dshot_send_command(pwm_group &group, uint8_t command, uint8_t chan);
     static void dshot_update_tick(virtual_timer_t*, void* p);
     static void dshot_send_next_group(void* p);
     // release locks on the groups that are pending in reverse order
+<<<<<<< HEAD
     sysinterval_t calc_ticks_remaining(pwm_group &group, uint64_t time_out_us, uint32_t output_period_us);
+=======
+>>>>>>> Copter4.4
     void dshot_collect_dma_locks(uint64_t last_run_us, bool led_thread = false);
     static void dma_up_irq_callback(void *p, uint32_t flags);
     static void dma_unlock(virtual_timer_t*, void *p);
