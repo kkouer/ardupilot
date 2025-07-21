@@ -111,6 +111,7 @@ float AP_Proximity_RPLidarA2::distance_max() const
     case Model::C1:
         return 12.0f;
     case Model::S1:
+    case Model::S3:
         return 40.0f;
     }
     return 0.0f;
@@ -126,6 +127,7 @@ float AP_Proximity_RPLidarA2::distance_min() const
     case Model::A2:
     case Model::C1:
     case Model::S1:
+    case Model::S3:
         return 0.2f;
     }
     return 0.0f;
@@ -343,6 +345,11 @@ void AP_Proximity_RPLidarA2::parse_response_device_info()
     case 0x61:
         model = Model::S1;
         device_type = "S1";
+        break;
+    //kkouer add lider360
+    case 0x81:
+        model = Model::S3;
+        device_type = "S3";
         break;
     default:
         Debug(1, "Unknown device (%u)", _payload.device_info.model);
