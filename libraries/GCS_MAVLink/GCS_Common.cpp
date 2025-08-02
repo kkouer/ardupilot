@@ -1365,7 +1365,6 @@ GCS_MAVLINK_InProgress *GCS_MAVLINK_InProgress::get_task(MAV_CMD mav_cmd, GCS_MA
             continue;
         }
         _task.chan = chan;
-        _task.chan = chan;
         _task.task = t;
         _task.mav_cmd = mav_cmd;
         _task.requesting_sysid = sysid;
@@ -4465,11 +4464,9 @@ MAV_RESULT GCS_MAVLINK::_handle_command_preflight_calibration_baro(const mavlink
         }
         airspeed->calibrate(false);
         return MAV_RESULT_IN_PROGRESS;
-        return MAV_RESULT_IN_PROGRESS;
     }
 #endif
 
-    return MAV_RESULT_ACCEPTED;
     return MAV_RESULT_ACCEPTED;
 }
 
