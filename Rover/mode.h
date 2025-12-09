@@ -23,6 +23,7 @@ public:
         DOCK         = 8,
 #endif
         CIRCLE       = 9,
+        CIRCLE       = 9,
         AUTO         = 10,
         RTL          = 11,
         SMART_RTL    = 12,
@@ -287,6 +288,9 @@ public:
             set_reversed(false);
         }
     }
+    //kkouer add
+    bool Verify_Serial4_Data(uint8_t[], uint8_t size );
+    bool ParseParm2To4(uint16_t param2, uint16_t param3, uint16_t param4);
 
     AP_Mission mission{
         FUNCTOR_BIND_MEMBER(&ModeAuto::start_command, bool, const AP_Mission::Mission_Command&),
@@ -343,6 +347,8 @@ private:
     bool verify_nav_set_yaw_speed();
     bool do_circle(const AP_Mission::Mission_Command& cmd);
     bool verify_circle(const AP_Mission::Mission_Command& cmd);
+    bool do_circle(const AP_Mission::Mission_Command& cmd);
+    bool verify_circle(const AP_Mission::Mission_Command& cmd);
     void do_wait_delay(const AP_Mission::Mission_Command& cmd);
     void do_within_distance(const AP_Mission::Mission_Command& cmd);
     bool verify_wait_delay();
@@ -367,6 +373,11 @@ private:
     uint16_t loiter_duration;       // How long we should loiter at the nav_waypoint (time in seconds)
     uint32_t loiter_start_time;     // How long have we been loitering - The start time in millis
     bool previously_reached_wp;     // set to true if we have EVER reached the waypoint
+    // kkouer add
+    bool loiter_with_cmd;
+    float p2;
+    float p3;
+    float p4;
 
     // Guided-within-Auto variables
     struct {

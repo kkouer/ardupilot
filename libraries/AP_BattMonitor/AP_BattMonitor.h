@@ -10,6 +10,12 @@
 #include <AP_TemperatureSensor/AP_TemperatureSensor_config.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include "AP_BattMonitor_Params.h"
+#include "AP_BattMonitor_config.h"
+
+// maximum number of battery monitors
+#ifndef AP_BATT_MONITOR_MAX_INSTANCES
+#define AP_BATT_MONITOR_MAX_INSTANCES       12
+#endif
 
 // first monitor is always the primary monitor
 #define AP_BATT_PRIMARY_INSTANCE            0

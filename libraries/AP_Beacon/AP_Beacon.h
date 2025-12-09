@@ -61,6 +61,9 @@ public:
     // return true if beacon feature is enabled
     bool enabled(void) const;
 
+    //kkouer add
+    void setParseSettingFrame() const;
+
     // return true if sensor is basically healthy (we are receiving data)
     bool healthy(void) const;
 
