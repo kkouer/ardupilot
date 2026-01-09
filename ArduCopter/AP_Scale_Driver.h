@@ -16,7 +16,6 @@ public:
     AP_Scale_Driver() {}
 
     void init() {
-        gcs().send_text(MAV_SEVERITY_INFO, "Scale: Init");
         // Find the serial port allocated for Scripting (28)
         _uart = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Scripting, 0);
         if (_uart != nullptr) {
@@ -56,13 +55,6 @@ public:
     void send_mavlink() {
         // Unconditionally send the latest weight so it appears in Inspector
         gcs().send_named_float("WEIGHT", _latest_weight);
-        
-        // Debug: Show we are alive and counting frames
-        static uint32_t last_stat_ms = 0;
-        if (AP_HAL::millis() - last_stat_ms > 2000) {
-            gcs().send_text(MAV_SEVERITY_INFO, "Scale: ValidFrames %u, Val %.2f", (unsigned)_valid_frame_count, _latest_weight);
-            last_stat_ms = AP_HAL::millis();
-        }
     }
 
 private:
@@ -114,18 +106,6 @@ private:
     }
 
     void _parse_frame() {
-        // Debug: Print the full 9-byte frame immediately to identify what we captured
-        static uint32_t last_hex_ms = 0;
-        uint32_t now = AP_HAL::millis();
-        bool print_debug = (now - last_hex_ms > 1000);
-        
-        if (print_debug) {
-            gcs().send_text(MAV_SEVERITY_INFO, "Fr: %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-                _buffer[0], _buffer[1], _buffer[2], _buffer[3], 
-                _buffer[4], _buffer[5], _buffer[6], _buffer[7], _buffer[8]);
-            last_hex_ms = now;
-        }
-
         // Header check
         if (_buffer[0] != 0xAA) {
              return;
@@ -138,9 +118,6 @@ private:
         }
         
         if (sum != _buffer[8]) {
-            if (print_debug) {
-                gcs().send_text(MAV_SEVERITY_WARNING, "Bad Checksum: Calc %02X != Recv %02X", sum, _buffer[8]);
-            }
             return;
         }
 
