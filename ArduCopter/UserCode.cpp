@@ -1,6 +1,9 @@
 #include "Copter.h"
 #include "AP_Scale_Driver.h"
 
+// Define the global instance here
+AP_Scale_Driver scale_driver;
+
 #ifdef USERHOOK_INIT
 void Copter::userhook_init()
 {
@@ -30,6 +33,22 @@ void Copter::userhook_MediumLoop()
 {
     // put your 10Hz code here
     scale_driver.send_mavlink();
+
+    // Simple RC trigger for Tare (using Channel 7)
+    // 0-indexed: 6 = Channel 7
+    // RC_Channel *chan7 = RC_Channels::rc_channel(6);
+    // if (chan7 != nullptr) {
+    //     uint16_t pwm = chan7->get_radio_in();
+    //     static bool tare_triggered = false;
+
+    //     // Toggle logic: Low -> High triggers action
+    //     if (pwm > 1700 && !tare_triggered) {
+    //         scale_driver.tare();
+    //         tare_triggered = true;
+    //     } else if (pwm < 1300) {
+    //         tare_triggered = false; // Reset when switch goes low
+    //     }
+    // }
 }
 #endif
 

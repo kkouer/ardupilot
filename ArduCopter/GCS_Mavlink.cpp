@@ -3,6 +3,7 @@
 #include "GCS_Mavlink.h"
 #include <AP_RPM/AP_RPM_config.h>
 #include <AP_EFI/AP_EFI_config.h>
+#include "AP_Scale_Driver.h" // Added for Tare control
 
 MAV_TYPE GCS_Copter::frame_type() const
 {
@@ -761,6 +762,11 @@ MAV_RESULT GCS_MAVLINK_Copter::handle_command_int_packet(const mavlink_command_i
 
     case MAV_CMD_CONDITION_YAW:
         return handle_MAV_CMD_CONDITION_YAW(packet);
+
+    // Custom Scale Tare Command
+    case MAV_CMD_USER_1:
+        scale_driver.tare();
+        return MAV_RESULT_ACCEPTED;
 
     case MAV_CMD_DO_CHANGE_SPEED:
         return handle_MAV_CMD_DO_CHANGE_SPEED(packet);

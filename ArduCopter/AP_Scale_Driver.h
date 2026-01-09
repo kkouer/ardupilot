@@ -51,6 +51,19 @@ public:
         _last_trigger_ms = AP_HAL::millis();
     }
 
+    // Command to Zero/Tare the scale
+    // Protocol: AB 00 AA AC AD
+    void tare() {
+        if (_uart == nullptr) {
+            return;
+        }
+        const uint8_t cmd[] = { 0xAB, 0x00, 0xAA, 0xAC, 0xAD };
+        _uart->write(cmd, sizeof(cmd));
+        
+        // Optional: Send text to confirm action
+        gcs().send_text(MAV_SEVERITY_INFO, "Scale: Tare Command Sent");
+    }
+
     // Call this at lower frequency (e.g. 10Hz) for heartbeat/debugging and failsafe updating
     void send_mavlink() {
         // Unconditionally send the latest weight so it appears in Inspector
@@ -134,4 +147,5 @@ private:
 };
 
 // Global instance to be used in UserCode.cpp
-static AP_Scale_Driver scale_driver;
+// Global instance to be used in UserCode.cpp and GCS
+extern AP_Scale_Driver scale_driver;
