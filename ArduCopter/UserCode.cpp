@@ -1,10 +1,12 @@
 #include "Copter.h"
+#include "AP_Scale_Driver.h"
 
 #ifdef USERHOOK_INIT
 void Copter::userhook_init()
 {
     // put your initialisation code here
     // this will be called once at start-up
+    scale_driver.init();
 }
 #endif
 
@@ -12,6 +14,7 @@ void Copter::userhook_init()
 void Copter::userhook_FastLoop()
 {
     // put your 100Hz code here
+    scale_driver.update();
 }
 #endif
 
@@ -26,6 +29,7 @@ void Copter::userhook_50Hz()
 void Copter::userhook_MediumLoop()
 {
     // put your 10Hz code here
+    scale_driver.send_mavlink();
 }
 #endif
 
