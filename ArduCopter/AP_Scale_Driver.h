@@ -24,20 +24,20 @@ public:
       _uart->begin(9600);
 
       // Send initialization command
-      send_trigger();
     }
   }
 
   // Call this at high frequency (e.g. 100Hz or 400Hz) to drain the buffer
   void update() {
-    // Check for pending trigger (delayed re-enable after tare)
-    if (_pending_trigger_ms != 0 && AP_HAL::millis() > _pending_trigger_ms) {
-      send_trigger();
-      _pending_trigger_ms = 0;
-    }
-
     if (_uart == nullptr) {
       return;
+    }
+
+    // Polling Mechanism: Request data every 500ms (2Hz)
+    uint32_t now = AP_HAL::millis();
+    if (now - _last_poll_ms >= 200) {
+      send_poll_request();
+      _last_poll_ms = now;
     }
 
     // Read all available bytes to ensure we process the latest data immediately
@@ -48,14 +48,13 @@ public:
     }
   }
 
-  void send_trigger() {
+  // Request measurement command: A1 00 A0 A2 A3
+  void send_poll_request() {
     if (_uart == nullptr) {
       return;
     }
-    // Command: A4 00 A3 A5 A2
-    const uint8_t cmd[] = {0xA4, 0x00, 0xA3, 0xA5, 0xA2};
+    const uint8_t cmd[] = {0xA3, 0x00, 0xA2, 0xA4, 0xA5};
     _uart->write(cmd, sizeof(cmd));
-    _last_trigger_ms = AP_HAL::millis();
   }
 
   // Command to Zero/Tare the scale
@@ -68,10 +67,7 @@ public:
     _uart->write(cmd, sizeof(cmd));
 
     // Optional: Send text to confirm action
-    gcs().send_text(MAV_SEVERITY_INFO, "Scale: Tare Sent, waiting 1s...");
-
-    // Schedule a re-trigger in 1000ms
-    _pending_trigger_ms = AP_HAL::millis() + 1000;
+    gcs().send_text(MAV_SEVERITY_INFO, "Scale: Tare Command Sent");
   }
 
   // Call this at lower frequency (e.g. 10Hz) for heartbeat/debugging and
@@ -85,8 +81,7 @@ private:
   AP_HAL::UARTDriver *_uart = nullptr;
   float _latest_weight = 0.0f;
   bool _healthy = false;
-  uint32_t _last_trigger_ms = 0;
-  uint32_t _pending_trigger_ms = 0;
+  uint32_t _last_poll_ms = 0;
   uint32_t _valid_frame_count = 0;
 
   // Binary parsing state
@@ -96,8 +91,7 @@ private:
     WAIT_END
   } _state = State::WAIT_START;
 
-  static const uint8_t FRAME_LEN =
-      9; // Based on example: AA A4 00 00 AD AD AD CK FF
+  static const uint8_t FRAME_LEN = 10;
   uint8_t _buffer[FRAME_LEN];
   uint8_t _buffer_idx = 0;
 
@@ -113,22 +107,13 @@ private:
 
     case State::READ_DATA:
       _buffer[_buffer_idx++] = c;
-      if (_buffer_idx >=
-          8) { // Read up to index 7 (Wait for last byte potentially)
-        // If we strictly follow the count, we need 9 bytes total.
-        // The example: AA A4 00 00 00 00 00 A4 FF -> 9 bytes
-        // Index:      0  1  2  3  4  5  6  7  8
-        if (_buffer_idx >= FRAME_LEN) {
-          _parse_frame();
-          _state = State::WAIT_START;
-        }
+      if (_buffer_idx >= FRAME_LEN) {
+        _parse_frame();
+        _state = State::WAIT_START;
       }
       break;
 
     case State::WAIT_END:
-      // Not strictly used if we just count bytes, but good for resync if Frame
-      // ends with fixed FF In this implementation I'll just count bytes to 9
-      // for simplicity based on the example.
       break;
     }
   }
@@ -138,14 +123,25 @@ private:
     if (_buffer[0] != 0xAA) {
       return;
     }
+    // Tail check
+    if (_buffer[9] != 0xFF) {
+      gcs().send_text(MAV_SEVERITY_WARNING, "Scale: Bad Tail %x", _buffer[9]);
+      return;
+    }
 
-    // Checksum Validation: Sum of bytes 1..7 should equal byte 8
-    uint8_t sum = 0;
-    for (uint8_t i = 1; i < 8; i++) {
+    // Checksum Validation: Sum of bytes 2..7 (Index 1..6)
+    // Equals (Byte8 << 8) + Byte9 (Index 7, 8)
+    uint16_t sum = 0;
+    for (uint8_t i = 1; i <= 6; i++) {
       sum += _buffer[i];
     }
 
-    if (sum != _buffer[8]) {
+    uint16_t checksum = ((uint16_t)_buffer[7] << 8) | _buffer[8];
+
+    if (sum != checksum) {
+      // Debug mismatch
+      // gcs().send_text(MAV_SEVERITY_WARNING, "Scale: Bad Chk Recv:%04x
+      // Calc:%04x", (unsigned)checksum, (unsigned)sum);
       return;
     }
 
