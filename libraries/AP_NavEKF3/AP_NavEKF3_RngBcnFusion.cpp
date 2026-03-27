@@ -390,6 +390,9 @@ void NavEKF3_core::FuseRngBcnStatic()
         if (rngBcn.numMeas >= 100) {
             // 100 observations is enough for a stable estimate under most conditions
             // TODO monitor stability of the position estimate
+            if (!rngBcn.alignmentCompleted) {
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "EKF3 IMU%u: Beacon is ready for posXY", (unsigned)core_index);
+            }
             rngBcn.alignmentCompleted = true;
 
         }
@@ -564,6 +567,9 @@ void NavEKF3_core::FuseRngBcnStatic()
         if (rngBcn.numMeas >= 100) {
             // 100 observations is enough for a stable estimate under most conditions
             // TODO monitor stability of the position estimate
+            if (!rngBcn.alignmentCompleted) {
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "EKF3 IMU%u: Beacon is ready for posXY", (unsigned)core_index);
+            }
             rngBcn.alignmentCompleted = true;
         }
         // Update the fusion report
