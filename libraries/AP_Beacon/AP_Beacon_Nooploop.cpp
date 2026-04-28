@@ -17,6 +17,7 @@
 
 #if AP_BEACON_NOOPLOOP_ENABLED
 
+#include <AP_AHRS/AP_AHRS.h>
 #include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS.h>
 #include <ctype.h>
@@ -266,6 +267,10 @@ void AP_Beacon_Nooploop::parse_node_frame2() {
     last_rssi_print_ms = _last_update_ms;
   }
 
+  float alt_rel = 0.0f;
+  AP::ahrs().get_relative_position_D_home(alt_rel);
+  alt_rel = -alt_rel;
+
   for (uint8_t i = 0; i < valid_nodes; i++) {
     uint16_t offset = NOOPLOOP_NODE_FRAME2_NODE_BLOCK + i * 13;
     uint8_t id = _msgbuf[offset + 1]; // nooploop id starts from 0, increments
@@ -278,8 +283,8 @@ void AP_Beacon_Nooploop::parse_node_frame2() {
     if (should_print_rssi && id == 0) {
       float fp_rssi = _msgbuf[offset + 5] / -2.0f;
       float rx_rssi = _msgbuf[offset + 6] / -2.0f;
-      GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Bcn id %d FP:%.1f RX:%.1f", id,
-                    (double)fp_rssi, (double)rx_rssi);
+      GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Bcn0 FP:%.1f RX:%.1f H:%.1f",
+                    (double)fp_rssi, (double)rx_rssi, (double)alt_rel);
     }
 
     if (getNodeData && i < valid_nodes) {
