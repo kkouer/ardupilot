@@ -510,7 +510,7 @@ void NavEKF3_core::setAidingMode() {
         posResetSource = resetDataSource::RNGBCN;
         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "EKF3 IMU%u is using range beacons",
                       (unsigned)imu_index);
-        GCS_SEND_TEXT(MAV_SEVERITY_NOTICE, "UWB can be used!");
+        GCS_SEND_TEXT(MAV_SEVERITY_ALERT, "UWB can be used!");
         GCS_SEND_TEXT(MAV_SEVERITY_INFO,
                       "EKF3 IMU%u initial pos NE = %3.1f,%3.1f (m)",
                       (unsigned)imu_index, (double)rngBcn.receiverPos.x,
