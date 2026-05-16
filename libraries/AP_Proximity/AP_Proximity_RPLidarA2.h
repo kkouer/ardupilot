@@ -33,7 +33,11 @@
  *    - S1/S3：GET_LIDAR_CONF(典型扫描模式) → EXPRESS_SCAN（扩展模式 + Boost 高速标志）→ 解析 Dense 胶囊包（应答类型 0x85）。
  *    - 其它型号：传统 SCAN（0x20），每点 5 字节。
  *    - 若高速描述符非 Dense 或典型模式获取失败，则回退 SCAN。
- * 8) 数据流：利用每周转首点的同步位 S=1 对齐角度；亦可据此估算当前 RPM。
+ * 8) 数据流：Dense 胶囊按 Slamtec SDK 校验前两字节（低/高各 4bit 拼成 8bit）与后续载荷异或；
+ *    连续校验失败则 STOP 并退回标准 SCAN，减轻串口误码导致的“全向假障碍”。
+ *    S1/S3：退回 SCAN 后经过 RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS 毫秒自动排空 RX 并重走
+ *    GET_SAMPLERATE→电机稳定→GET_LIDAR_CONF→EXPRESS Dense。
+ *    同步位 S=1 仍用于每周转对齐角度；亦可据此估算当前 RPM。
  * 9) 结束：发送 STOP（0x25）；S 系列将 MOTOR_SPEED_CTRL 的 RPM 置 0 可进入空闲。
  *
  * Author: Steven Josefs, IAV GmbH
@@ -131,6 +135,11 @@ private:
     // 从接收缓冲丢弃已处理字节（前移剩余数据）
     void consume_bytes(uint16_t count);
 
+    /// 丢弃 UART 中未读字节，避免 STOP/切模式后残留测距流破坏 A5 描述符同步
+    void drain_uart_rx();
+    /// 因 Dense 校验失败退回 SCAN 后，到期则重试 Dense 链路（仅 S1/S3，且须在标准 SCAN 态）
+    void maybe_retry_dense_after_fallback_scan();
+
     uint8_t _sync_error;
     uint16_t _byte_count;
 
@@ -151,6 +160,8 @@ private:
     RPLidarDenseCapsule _dense_prev {};
     bool _dense_have_prev {};
     int _dense_last_sync_bit {};                ///< Dense 解包同步位状态（Slamtec SDK 等价逻辑）
+    uint8_t _dense_consecutive_checksum_fails {}; ///< Dense 胶囊校验连续失败计数（达阈值退回 SCAN）
+    uint32_t _dense_auto_retry_at_ms {};         ///< 非 0：该时刻（ms）到达后从 SCAN 重试 Dense（仅校验失败退回时设置）
 
     bool _mp_debug_summary_sent {};             ///< 已向 GCS 发送本周期连接摘要（避免重复）
     uint8_t _stashed_health_status {255};       ///< 扫前 GET_HEALTH：status（255=未缓存）

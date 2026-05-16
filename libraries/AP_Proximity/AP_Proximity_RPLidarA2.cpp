@@ -56,6 +56,8 @@
  * 其它：NEW_BAUDRATE_CONFIRM 0x90；HQ_MOTOR_SPEED_CTRL 0xA8；SET_MOTOR_PWM 0xF0；GET_ACC_BOARD_FLAG 0xFF
  * 应答类型：DEVINFO 0x04；DEVHEALTH 0x06；SAMPLE_RATE 0x15；GET_LIDAR_CONF 0x20；SET_LIDAR_CONF 0x21
  * 测距数据：STANDARD 0x81；CAPSULED 0x82；HQ 0x83；ULTRA_CAPSULED 0x84；DENSE_CAPSULED 0x85；ULTRA_DENSE 0x86
+ * Dense(0x85) 胶囊校验：recv=(s_checksum_1&0xF)|(s_checksum_2<<4)；calc 为从 start_angle_sync_q6 起至帧尾各字节异或（与 SDK 一致）
+ * 退回 SCAN 后自动重试 Dense：间隔 RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS（默认 10 s，可 -D 覆盖）
  * GET_LIDAR_CONF 配置项示例：SCAN_MODE_TYPICAL 0x0000007C；SCAN_MODE_COUNT 0x70；SCAN_MODE_US_PER_SAMPLE 0x71 等
  */
 
@@ -89,6 +91,16 @@
 #define RPLIDAR_DENSE_CAPSULE_BYTES      84U
 #endif
 
+// Dense 连续 N 次校验失败后 STOP 并退回 SCAN（Slamtec rplidar_sdk handler_capsules 思路）
+#ifndef RPLIDAR_DENSE_CHECKSUM_FAIL_TO_FALLBACK
+#define RPLIDAR_DENSE_CHECKSUM_FAIL_TO_FALLBACK  8U
+#endif
+
+// 因 Dense 校验失败退回标准 SCAN 后，经过该间隔（ms）自动重试 Dense（S1/S3）；编译前可 -D 覆盖
+#ifndef RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS
+#define RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS  10000U
+#endif
+
 // 10 Hz 扫描频率 ≈ 600 RPM（MOTOR_SPEED_CTRL 使用 RPM 单位）
 #define RPLIDAR_MOTOR_RPM_10HZ         600U
 
@@ -112,6 +124,66 @@ static inline uint16_t rplidar_u16_le(uint8_t lo, uint8_t hi)
     return uint16_t(lo) | (uint16_t(hi) << 8);
 }
 
+// Slamtec rplidar_sdk UnpackerHandler_DenseCapsuleNode::onData 校验算法
+static bool rplidar_dense_capsule_checksum_ok(const uint8_t *buf)
+{
+    if (buf == nullptr) {
+        return false;
+    }
+    const uint8_t recv_checksum = uint8_t((buf[0] & 0x0FU) | (buf[1] << 4));
+    uint8_t calc = 0;
+    for (size_t i = 2; i < RPLIDAR_DENSE_CAPSULE_BYTES; i++) {
+        calc ^= buf[i];
+    }
+    return calc == recv_checksum;
+}
+
+void AP_Proximity_RPLidarA2::drain_uart_rx()
+{
+    if (_uart == nullptr) {
+        return;
+    }
+    uint8_t b[128];
+    for (unsigned iter = 0; iter < 512U && _uart->available() > 0; iter++) {
+        const uint32_t navail = _uart->available();
+        (void)_uart->read(b, MIN(sizeof(b), navail));
+    }
+}
+
+void AP_Proximity_RPLidarA2::maybe_retry_dense_after_fallback_scan()
+{
+    if (_dense_auto_retry_at_ms == 0) {
+        return;
+    }
+    if (!(model == Model::S1 || model == Model::S3)) {
+        _dense_auto_retry_at_ms = 0;
+        return;
+    }
+    if (_state != State::AWAITING_SCAN_DATA) {
+        return;
+    }
+    const uint32_t now_ms = AP_HAL::millis();
+    if (now_ms < _dense_auto_retry_at_ms) {
+        return;
+    }
+    _dense_auto_retry_at_ms = 0;
+
+    drain_uart_rx();
+    _byte_count = 0;
+    send_stop();
+    drain_uart_rx();
+
+    _dense_consecutive_checksum_fails = 0;
+    _dense_have_prev = false;
+    _dense_last_sync_bit = 0;
+
+    _awaiting_samplerate_response = true;
+    send_request_for_samplerate();
+    _state = State::AWAITING_RESPONSE;
+
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, u8"RPLidar:SCAN后%u秒 重试Dense", (unsigned)(RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS / 1000U));
+}
+
 void AP_Proximity_RPLidarA2::update(void)
 {
     if (_uart == nullptr) {
@@ -131,6 +203,8 @@ void AP_Proximity_RPLidarA2::update(void)
         _state = State::AWAITING_RESPONSE;
         _byte_count = 0;
     }
+
+    maybe_retry_dense_after_fallback_scan();
 
     get_readings();
 
@@ -339,6 +413,8 @@ void AP_Proximity_RPLidarA2::reset()
     _express_scan_mode = 0;
     _dense_have_prev = false;
     _dense_last_sync_bit = 0;
+    _dense_consecutive_checksum_fails = 0;
+    _dense_auto_retry_at_ms = 0;
     _t_express_sample_us = 250;
     _mp_debug_summary_sent = false;
     _stashed_health_status = 255;
@@ -465,6 +541,7 @@ void AP_Proximity_RPLidarA2::get_readings()
                     _state = State::AWAITING_EXPRESS_DENSE;
                     _dense_have_prev = false;
                     _dense_last_sync_bit = 0;
+                    _dense_auto_retry_at_ms = 0;
                     if (!_mp_debug_summary_sent && (model == Model::S3)) {
                         _mp_debug_summary_sent = true;
                         send_mp_debug_summary(true);
@@ -474,6 +551,9 @@ void AP_Proximity_RPLidarA2::get_readings()
                     _awaiting_express_descriptor = false;
                     send_stop();
                     send_fallback_standard_scan();
+                    if (model == Model::S1 || model == Model::S3) {
+                        _dense_auto_retry_at_ms = AP_HAL::millis() + RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS;
+                    }
                 }
             } else if (memcmp((void*)&_payload[0], SCAN_DATA_DESCRIPTOR, sizeof(_descriptor)) == 0) {
                 _state = State::AWAITING_SCAN_DATA;
@@ -781,6 +861,23 @@ void AP_Proximity_RPLidarA2::parse_response_dense_capsule()
     // 角度插值与同步位逻辑参考 Slamtec 开源 rplidar_sdk（handler_capsules.cpp，BSD 许可）
     RPLidarDenseCapsule curr;
     memcpy(&curr, &_payload[0], sizeof(curr));
+
+    if (!rplidar_dense_capsule_checksum_ok(&_payload[0])) {
+        _dense_have_prev = false;
+        _dense_last_sync_bit = 0;
+        _dense_consecutive_checksum_fails++;
+        if (_dense_consecutive_checksum_fails >= RPLIDAR_DENSE_CHECKSUM_FAIL_TO_FALLBACK) {
+            _dense_consecutive_checksum_fails = 0;
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING, u8"RPLidar:Dense校验连续失败 退回SCAN");
+            send_stop();
+            send_fallback_standard_scan();
+            if (model == Model::S1 || model == Model::S3) {
+                _dense_auto_retry_at_ms = AP_HAL::millis() + RPLIDAR_DENSE_SCAN_FALLBACK_RETRY_MS;
+            }
+        }
+        return;
+    }
+    _dense_consecutive_checksum_fails = 0;
 
     if (!_dense_have_prev) {
         _dense_prev = curr;
