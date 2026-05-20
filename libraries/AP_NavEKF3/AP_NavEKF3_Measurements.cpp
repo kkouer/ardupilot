@@ -1043,13 +1043,49 @@ void NavEKF3_core::readRngBcnData()
         rngBcn.dataDelayed.beacon_posNED.y += rngBcn.posOffsetNED.y;
     }
 
-    if (!rngBcn.dataToFuse && beacon->count() != 0) {
-        bcnUnFuseCounter++; // 依旧保留你的计数器，让它暗中记录这事发生了多少次
-        static uint32_t last_unfuse_warn_ms = 0;
-        // 使用 EKF 内部的时间戳，确保严格的 2 秒触发一次
-        if (imuSampleTime_ms - last_unfuse_warn_ms > 2000) {
-            last_unfuse_warn_ms = imuSampleTime_ms;
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "rngBcnDataNOTToFuse count %d", bcnUnFuseCounter);
+    // 精确监测 EKF 是否正在正常融合 UWB 消息
+    // 条件：基站数量不为0、当前已在地面完成绝对对齐、且当前定位源已切换为 UWB (BEACON)
+    if (beacon->count() != 0 && rngBcn.originEstInitOnce && 
+        (frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON)) {
+        
+        uint32_t time_since_last_fuse_ms = imuSampleTime_ms - rngBcn.lastPassTime_ms;
+        
+        // 如果超过 2 秒没有接收到任何能够成功融合的 UWB 消息
+        if (time_since_last_fuse_ms > 2000) {
+            bcnUnFuseCounter++; // 记录融合失败或中断事件发生的频次
+            static uint32_t last_unfuse_warn_ms = 0;
+            if (imuSampleTime_ms - last_unfuse_warn_ms > 2000) {
+                last_unfuse_warn_ms = imuSampleTime_ms;
+                GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "UWB fusion stopped! Last success: %u ms ago", (unsigned)time_since_last_fuse_ms);
+            }
+        }
+    }
+
+    // 监测 UWB 地面基站断开与恢复连接情况
+    AP_Beacon *raw_beacon = AP::beacon();
+    if (core_index == 0 && raw_beacon != nullptr && raw_beacon->count() > 0) {
+        uint32_t now_ms = dal.millis();
+        static bool beacon_was_offline[AP_BEACON_MAX_BEACONS] = {false};
+        static uint32_t last_bcn_warn_ms[AP_BEACON_MAX_BEACONS] = {0};
+        
+        for (uint8_t i = 0; i < raw_beacon->count(); i++) {
+            uint32_t last_update = raw_beacon->beacon_last_update_ms(i);
+            if (last_update != 0) {
+                if (now_ms - last_update > 3000) {
+                    // 基站断开连接
+                    beacon_was_offline[i] = true;
+                    if (now_ms - last_bcn_warn_ms[i] > 5000) {
+                        last_bcn_warn_ms[i] = now_ms;
+                        GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "UWB: Base %d offline", (int)raw_beacon->beacon_id(i));
+                    }
+                } else {
+                    // 基站正常连接中或已恢复连接
+                    if (beacon_was_offline[i]) {
+                        beacon_was_offline[i] = false;
+                        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "UWB: Base %d online", (int)raw_beacon->beacon_id(i));
+                    }
+                }
+            }
         }
     }
 

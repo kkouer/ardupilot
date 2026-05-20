@@ -60,6 +60,7 @@ void AP_Beacon_Backend::set_beacon_distance(uint8_t beacon_instance, float dista
         _frontend.num_beacons = beacon_instance+1;
     }
 
+    _frontend.beacon_state[beacon_instance].id = beacon_instance;
     _frontend.beacon_state[beacon_instance].distance_update_ms = AP_HAL::millis();
     _frontend.beacon_state[beacon_instance].distance = distance;
     _frontend.beacon_state[beacon_instance].healthy = true;
@@ -79,6 +80,7 @@ void AP_Beacon_Backend::set_beacon_position(uint8_t beacon_instance, const Vecto
         _frontend.num_beacons = beacon_instance+1;
     }
 
+    _frontend.beacon_state[beacon_instance].id = beacon_instance;
     // set position after correcting yaw
     _frontend.beacon_state[beacon_instance].position = correct_for_orient_yaw(pos);
 }
