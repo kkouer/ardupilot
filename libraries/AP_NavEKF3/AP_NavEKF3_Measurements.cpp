@@ -1061,9 +1061,10 @@ void NavEKF3_core::readRngBcnData()
         }
     }
 
-    // 监测 UWB 地面基站断开与恢复连接情况
+    // 监测 UWB 地面基站断开与恢复连接情况 (仅在定位源为 BEACON 时检测)
     AP_Beacon *raw_beacon = AP::beacon();
-    if (core_index == 0 && raw_beacon != nullptr && raw_beacon->count() > 0) {
+    if (core_index == 0 && raw_beacon != nullptr && raw_beacon->count() > 0 &&
+        (frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON)) {
         uint32_t now_ms = dal.millis();
         static bool beacon_was_offline[AP_BEACON_MAX_BEACONS] = {false};
         static uint32_t last_bcn_warn_ms[AP_BEACON_MAX_BEACONS] = {0};
