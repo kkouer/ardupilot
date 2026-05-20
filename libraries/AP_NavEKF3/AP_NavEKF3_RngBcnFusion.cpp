@@ -53,6 +53,8 @@ void NavEKF3_core::BeaconFusion::InitialiseVariables()
     }
     posOffsetNED.zero();
     originEstInit = false;
+    originEstInitOnce = false;
+    originEstWarnCount = 0;
 }
 
 /********************************************************
@@ -65,12 +67,24 @@ void NavEKF3_core::SelectRngBcnFusion()
     // read range data from the sensor and check for new data in the buffer
     readRngBcnData();
 
+    // If range beacon data is active, we are on the ground, and UWB has not been aligned yet, print a periodic warning from core 0 up to 10 times
+    if (core_index == 0 && onGround && rngBcn.dataToFuse && !rngBcn.originEstInitOnce && rngBcn.originEstWarnCount < 20) {
+        uint32_t now = dal.millis();
+        static uint32_t last_warn_ms = 0;
+        if (now - last_warn_ms > 5000) {
+            last_warn_ms = now;
+            rngBcn.originEstWarnCount++;
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "UWB: Align on ground");
+        }
+    }
+
     // Determine if we need to fuse range beacon data on this time step
     if (rngBcn.dataToFuse) {
         if (PV_AidingMode == AID_ABSOLUTE) {
             if ((frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON) && rngBcn.alignmentCompleted) {
                 if (!rngBcn.originEstInit) {
                     rngBcn.originEstInit = true;
+                    rngBcn.originEstInitOnce = true;
                     // bcnPosOffsetNED.x = receiverPos.x - stateStruct.position.x;
                     // bcnPosOffsetNED.y = receiverPos.y - stateStruct.position.y;
                     //kkouer added manually align bcn offset

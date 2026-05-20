@@ -1424,6 +1424,8 @@ private:
 
         Vector3F posOffsetNED;           // NED position of the beacon origin in earth frame (m)
         bool originEstInit;              // True when the beacon origin has been initialised
+        bool originEstInitOnce;          // True when the beacon origin has been initialised at least once
+        uint8_t originEstWarnCount;      // Number of times we have warned the user
 
         // Range Beacon Fusion Debug Reporting
         uint8_t fuseDataReportIndex;// index of range beacon fusion data last reported
