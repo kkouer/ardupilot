@@ -288,8 +288,8 @@ void AP_Beacon_Nooploop::parse_node_frame2() {
     }
 
     if (getNodeData && i < valid_nodes) {
-      GCS_SEND_TEXT(MAV_SEVERITY_INFO, "update beacon id %d dist %lu ", id,
-                    dist);
+      GCS_SEND_TEXT(MAV_SEVERITY_INFO, "update beacon id %d dist %ld ", id,
+                    (long)dist);
       if (i == valid_nodes - 1)
         getNodeData = false;
     }
@@ -328,8 +328,8 @@ void AP_Beacon_Nooploop::parse_setting_frame0() {
       return;
     }
 
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "id: %d, px: %lu, py:%lu beacon", i, pos_x,
-                  pos_y);
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "id: %d, px: %ld, py:%ld beacon", i, (long)pos_x,
+                  (long)pos_y);
 
     // position scaled to meters and changed to NED
     const Vector3f pos_m{pos_y * 0.001f, pos_x * 0.001f, -pos_z * 0.001f};
