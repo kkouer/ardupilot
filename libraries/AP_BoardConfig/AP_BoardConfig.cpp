@@ -349,6 +349,36 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("BOOT_DELAY", 20, AP_BoardConfig, _boot_delay_ms, HAL_DEFAULT_BOOT_DELAY),
 
+    // @Param: SN_PART1
+    // @DisplayName: Drone Serial Number Part 1
+    // @Description: Drone 20-char serial number Part 1 (read-only)
+    // @User: Standard
+    AP_GROUPINFO_FLAGS("SN_PART1", 34, AP_BoardConfig, _sn_part1, 0, AP_PARAM_FLAG_INTERNAL_USE_ONLY),
+
+    // @Param: SN_PART2
+    // @DisplayName: Drone Serial Number Part 2
+    // @Description: Drone 20-char serial number Part 2 (read-only)
+    // @User: Standard
+    AP_GROUPINFO_FLAGS("SN_PART2", 35, AP_BoardConfig, _sn_part2, 0, AP_PARAM_FLAG_INTERNAL_USE_ONLY),
+
+    // @Param: SN_PART3
+    // @DisplayName: Drone Serial Number Part 3
+    // @Description: Drone 20-char serial number Part 3 (read-only)
+    // @User: Standard
+    AP_GROUPINFO_FLAGS("SN_PART3", 36, AP_BoardConfig, _sn_part3, 0, AP_PARAM_FLAG_INTERNAL_USE_ONLY),
+
+    // @Param: SN_PART4
+    // @DisplayName: Drone Serial Number Part 4
+    // @Description: Drone 20-char serial number Part 4 (read-only)
+    // @User: Standard
+    AP_GROUPINFO_FLAGS("SN_PART4", 37, AP_BoardConfig, _sn_part4, 0, AP_PARAM_FLAG_INTERNAL_USE_ONLY),
+
+    // @Param: SN_PART5
+    // @DisplayName: Drone Serial Number Part 5
+    // @Description: Drone 20-char serial number Part 5 (read-only)
+    // @User: Standard
+    AP_GROUPINFO_FLAGS("SN_PART5", 38, AP_BoardConfig, _sn_part5, 0, AP_PARAM_FLAG_INTERNAL_USE_ONLY),
+
 #if HAL_HAVE_IMU_HEATER
     // @Param: HEAT_P
     // @DisplayName: Board Heater P gain
@@ -585,6 +615,16 @@ bool AP_BoardConfig::safety_button_handle_pressed(uint8_t press_count)
         !(safety_options & BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON)) {
         return false;
     }
+    return true;
+}
+
+bool AP_BoardConfig::set_custom_sn(uint32_t p1, uint32_t p2, uint32_t p3, uint32_t p4, uint32_t p5)
+{
+    _sn_part1.set_and_save_ifchanged(p1);
+    _sn_part2.set_and_save_ifchanged(p2);
+    _sn_part3.set_and_save_ifchanged(p3);
+    _sn_part4.set_and_save_ifchanged(p4);
+    _sn_part5.set_and_save_ifchanged(p5);
     return true;
 }
 

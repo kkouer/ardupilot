@@ -242,10 +242,17 @@ public:
     }
 #endif
 
+    bool set_custom_sn(uint32_t p1, uint32_t p2, uint32_t p3, uint32_t p4, uint32_t p5);
+
 private:
     static AP_BoardConfig *_singleton;
     
     AP_Int32 vehicleSerialNumber;
+    AP_Int32 _sn_part1;
+    AP_Int32 _sn_part2;
+    AP_Int32 _sn_part3;
+    AP_Int32 _sn_part4;
+    AP_Int32 _sn_part5;
 
     struct {
         AP_Int8 safety_enable;

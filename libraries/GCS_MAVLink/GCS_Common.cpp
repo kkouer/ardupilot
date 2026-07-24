@@ -5657,6 +5657,26 @@ MAV_RESULT GCS_MAVLINK::handle_command_int_packet(const mavlink_command_int_t &p
     case MAV_CMD_DEBUG_TRAP:
         return handle_command_debug_trap(packet);
 
+    case MAV_CMD_USER_1: {
+        // 校验秘钥 (param6 映射为 packet.y，必须等于 888888)
+        if (is_equal(float(packet.y), 888888.0f) || packet.y == 888888) {
+            AP_BoardConfig *boardconfig = AP_BoardConfig::get_singleton();
+            if (boardconfig != nullptr) {
+                // 读取 5 个 32位 整数参数
+                uint32_t p1 = (uint32_t)packet.param1;
+                uint32_t p2 = (uint32_t)packet.param2;
+                uint32_t p3 = (uint32_t)packet.param3;
+                uint32_t p4 = (uint32_t)packet.param4;
+                uint32_t p5 = (uint32_t)packet.x;
+                if (boardconfig->set_custom_sn(p1, p2, p3, p4, p5)) {
+                    return MAV_RESULT_ACCEPTED;
+                }
+            }
+            return MAV_RESULT_FAILED;
+        }
+        return MAV_RESULT_DENIED;
+    }
+
 #if HAL_ADSB_ENABLED
     case MAV_CMD_DO_ADSB_OUT_IDENT:
         if ((AP::ADSB() != nullptr) && AP::ADSB()->ident_start()) {
