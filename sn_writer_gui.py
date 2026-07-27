@@ -128,17 +128,17 @@ HTML_PAGE = """<!DOCTYPE html>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   body { background-color: #f5f5f7; color: #1d1d1f; padding: 25px 15px; display: flex; justify-content: center; }
-  .container { width: 100%; max-width: 640px; background: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 28px; }
+  .container { width: 100%; max-width: 700px; background: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 28px; }
   h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 24px; color: #1d1d1f; }
   .card { background: #fbfbfd; border: 1px solid #e5e5ea; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  .card-title { font-size: 14px; font-weight: 700; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-  .form-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 140px; }
-  label { font-size: 13px; font-weight: 600; color: #3a3a3c; }
-  select, input, button { font-size: 14px; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d1d6; outline: none; transition: all 0.2s; }
+  .card-title { font-size: 14px; font-weight: 700; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: nowrap; }
+  .form-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 12px; flex-wrap: wrap; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px; }
+  label { font-size: 13px; font-weight: 600; color: #3a3a3c; white-space: nowrap; }
+  select, input, button { font-size: 14px; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d1d6; outline: none; transition: all 0.2s; white-space: nowrap; }
   select, input { background: #ffffff; width: 100%; color: #000000; }
   input:focus, select:focus { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
-  button { font-weight: 600; cursor: pointer; border: none; background: #007aff; color: #ffffff; }
+  button { font-weight: 600; cursor: pointer; border: none; background: #007aff; color: #ffffff; white-space: nowrap; flex-shrink: 0; }
   button:hover { background: #0062cc; }
   button:disabled { background: #c7c7cc; cursor: not-allowed; }
   button.btn-secondary { background: #e5e5ea; color: #1d1d1f; }
@@ -147,15 +147,15 @@ HTML_PAGE = """<!DOCTYPE html>
   button.btn-success:hover { background: #28a745; }
   button.btn-danger { background: #ff3b30; }
   button.btn-danger:hover { background: #d70015; }
-  .sn-input-wrapper { display: flex; gap: 10px; align-items: center; }
+  .sn-input-wrapper { display: flex; gap: 12px; align-items: center; }
   .sn-input { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 16px; font-weight: 700; letter-spacing: 1px; flex: 1; border: 2px solid #007aff !important; background: #ffffff !important; color: #000000 !important; }
-  .byte-counter { font-size: 13px; font-weight: 700; color: #ff3b30; min-width: 85px; text-align: right; }
+  .byte-counter { font-size: 13px; font-weight: 700; color: #ff3b30; min-width: 95px; text-align: right; white-space: nowrap; flex-shrink: 0; }
   .byte-counter.valid { color: #34c759; }
   .log-box { background: #1c1c1e; color: #30d158; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; padding: 14px; border-radius: 8px; height: 160px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
-  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
   .status-connected { background: #e4f9e8; color: #248a3d; }
   .status-disconnected { background: #ffe5e5; color: #d70015; }
-  .current-sn-box { margin-bottom: 14px; background: #eef6ff; padding: 12px 16px; border-radius: 8px; border: 1px solid #cce5ff; display: flex; justify-content: space-between; align-items: center; }
+  .current-sn-box { margin-bottom: 14px; background: #eef6ff; padding: 12px 16px; border-radius: 8px; border: 1px solid #cce5ff; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 </style>
 </head>
 <body>
@@ -168,14 +168,14 @@ HTML_PAGE = """<!DOCTYPE html>
       <span id="conn-status" class="status-badge status-disconnected">未连接</span>
     </div>
     <div class="form-row">
-      <div class="form-group" style="flex: 2;">
+      <div class="form-group" style="flex: 2; min-width: 200px;">
         <label>设备端口</label>
         <div style="display: flex; gap: 8px;">
-          <select id="port-select"></select>
-          <button class="btn-secondary" onclick="refreshPorts()" style="padding: 0 12px;">🔄 刷新</button>
+          <select id="port-select" style="flex: 1;"></select>
+          <button class="btn-secondary" onclick="refreshPorts()" style="padding: 0 14px;">🔄 刷新</button>
         </div>
       </div>
-      <div class="form-group" style="flex: 1;">
+      <div class="form-group" style="flex: 1; min-width: 120px;">
         <label>波特率</label>
         <select id="baud-select">
           <option value="115200">115200</option>
@@ -188,13 +188,13 @@ HTML_PAGE = """<!DOCTYPE html>
         </select>
       </div>
     </div>
-    <button id="btn-connect" onclick="toggleConnect()" style="width: 100%; margin-top: 8px;">连接飞控</button>
+    <button id="btn-connect" onclick="toggleConnect()" style="width: 100%; margin-top: 8px; padding: 12px 14px; font-size: 15px;">连接飞控</button>
   </div>
 
   <div class="card">
     <div class="card-title">
       <span>2. SN 码设置 (刚好 20 位字符)</span>
-      <button class="btn-secondary" onclick="fetchReadSN()" style="padding: 4px 10px; font-size: 12px;">🔍 重新读取SN</button>
+      <button class="btn-secondary" onclick="fetchReadSN()" style="padding: 4px 12px; font-size: 12px;">🔍 重新读取SN</button>
     </div>
 
     <div class="current-sn-box">
@@ -203,10 +203,10 @@ HTML_PAGE = """<!DOCTYPE html>
     </div>
 
     <div class="sn-input-wrapper">
-      <input type="text" id="sn-input" class="sn-input" value="6975" placeholder="6975xxxxxxxxxxxxxxxx" maxlength="20" oninput="checkSN()">
+      <input type="text" id="sn-input" class="sn-input" value="6975" placeholder="6975XXXXXXXXXXXXXXXX" maxlength="20" oninput="checkSN()">
       <div id="byte-count" class="byte-counter">4 / 20 字节</div>
     </div>
-    <button id="btn-write" class="btn-success" onclick="writeSN()" style="width: 100%; margin-top: 14px;" disabled>写入并永久保存 SN 码</button>
+    <button id="btn-write" class="btn-success" onclick="writeSN()" style="width: 100%; margin-top: 14px; padding: 12px 14px; font-size: 15px;" disabled>写入并永久保存 SN 码</button>
   </div>
 
   <div class="card">
@@ -244,14 +244,8 @@ function checkSN() {
   // 自动转大写
   val = val.toUpperCase();
   
-  // 过滤非允许字符：只保留数字 (0-9) 和 大写字母 (排除 I 和 O)
-  val = val.replace(/[^0-9A-HJ-NP-Z]/g, '');
-
-  // 锁定前 4 位始终为 6975
-  if (!val.startsWith('6975')) {
-    let suffix = val.replace(/^6?9?7?5?/, '');
-    val = '6975' + suffix;
-  }
+  // 过滤非允许字符：只保留数字 (0-9) 和 大写字母 (0-9, A-Z)
+  val = val.replace(/[^0-9A-Z]/g, '');
 
   if (input.value !== val) {
     input.value = val;
@@ -326,7 +320,6 @@ async function writeSN() {
   const data = await res.json();
   if (data.success) {
     alert('SUCCESS: SN 码 [' + sn + '] 写入成功且验证通过！');
-    // 写入成功后复位输入框为默认前缀 6975 方便下一次写入
     input.value = '6975';
   } else {
     alert('ERROR: 写入失败: ' + data.error);
@@ -335,19 +328,6 @@ async function writeSN() {
   pollStatus();
 }
 
-// 绑定 Backspace/Delete 事件防止误删 6975 前缀
-window.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('sn-input');
-  if (input) {
-    input.addEventListener('keydown', function(e) {
-      if ((e.key === 'Backspace' || e.key === 'Delete') && this.selectionStart <= 4) {
-        if (this.selectionStart === this.selectionEnd || this.selectionStart < 4) {
-          e.preventDefault();
-        }
-      }
-    });
-  }
-});
 
 async function pollStatus() {
   try {
