@@ -45,6 +45,9 @@ public:
     // set individual beacon distance from vehicle in meters in NED frame
     void set_beacon_distance(uint8_t beacon_instance, float distance);
 
+    // set individual beacon signal strength (rx_rssi and fp_rssi in dBm)
+    void set_beacon_rssi(uint8_t beacon_instance, float rx_rssi, float fp_rssi);
+
     // set beacon's position
     // pos should be in meters in NED from the beacon's local origin
     void set_beacon_position(uint8_t beacon_instance, const Vector3f& pos);

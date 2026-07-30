@@ -66,6 +66,24 @@ void AP_Beacon_Backend::set_beacon_distance(uint8_t beacon_instance, float dista
     _frontend.beacon_state[beacon_instance].healthy = true;
 }
 
+// set individual beacon signal strength (rx_rssi and fp_rssi in dBm)
+void AP_Beacon_Backend::set_beacon_rssi(uint8_t beacon_instance, float rx_rssi, float fp_rssi)
+{
+    // sanity check instance
+    if (beacon_instance >= AP_BEACON_MAX_BEACONS) {
+        return;
+    }
+
+    // setup new beacon
+    if (beacon_instance >= _frontend.num_beacons) {
+        _frontend.num_beacons = beacon_instance + 1;
+    }
+
+    _frontend.beacon_state[beacon_instance].id = beacon_instance;
+    _frontend.beacon_state[beacon_instance].rx_rssi = rx_rssi;
+    _frontend.beacon_state[beacon_instance].fp_rssi = fp_rssi;
+}
+
 // set beacon's position
 // pos should be in meters in NED from the beacon's local origin
 void AP_Beacon_Backend::set_beacon_position(uint8_t beacon_instance, const Vector3f& pos)

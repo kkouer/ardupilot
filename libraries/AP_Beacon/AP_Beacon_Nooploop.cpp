@@ -280,11 +280,25 @@ void AP_Beacon_Nooploop::parse_node_frame2() {
                           (int32_t)_msgbuf[offset + 2] << 8) >>
                          8;
 
-    if (should_print_rssi && id == 0) {
-      float fp_rssi = _msgbuf[offset + 5] / -2.0f;
-      float rx_rssi = _msgbuf[offset + 6] / -2.0f;
-      GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Bcn0 FP:%.1f RX:%.1f H:%.1f",
-                    (double)fp_rssi, (double)rx_rssi, (double)alt_rel);
+    float fp_rssi = _msgbuf[offset + 5] / -2.0f;
+    float rx_rssi = _msgbuf[offset + 6] / -2.0f;
+
+    set_beacon_distance(id, dist * 0.001f);
+    set_beacon_rssi(id, rx_rssi, fp_rssi);
+
+    if (should_print_rssi) {
+      char name_rx[10];
+      hal.util->snprintf(name_rx, sizeof(name_rx), "UWBR%u", id);
+      gcs().send_named_float(name_rx, rx_rssi);
+
+      char name_fp[10];
+      hal.util->snprintf(name_fp, sizeof(name_fp), "UWBF%u", id);
+      gcs().send_named_float(name_fp, fp_rssi);
+
+    //   if (id == 0) {
+    //     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Bcn0 FP:%.1f RX:%.1f H:%.1f",
+    //                   (double)fp_rssi, (double)rx_rssi, (double)alt_rel);
+    //   }
     }
 
     if (getNodeData && i < valid_nodes) {
@@ -293,7 +307,6 @@ void AP_Beacon_Nooploop::parse_node_frame2() {
       if (i == valid_nodes - 1)
         getNodeData = false;
     }
-    set_beacon_distance(id, dist * 0.001f);
   }
 }
 

@@ -18,6 +18,14 @@
 // @Field: PosX: Calculated beacon position, x-axis
 // @Field: PosY: Calculated beacon position, y-axis
 // @Field: PosZ: Calculated beacon position, z-axis
+// @Field: R0: RX RSSI of first beacon
+// @Field: R1: RX RSSI of second beacon
+// @Field: R2: RX RSSI of third beacon
+// @Field: R3: RX RSSI of fourth beacon
+// @Field: F0: FP RSSI of first beacon
+// @Field: F1: FP RSSI of second beacon
+// @Field: F2: FP RSSI of third beacon
+// @Field: F3: FP RSSI of fourth beacon
 
 struct PACKED log_Beacon {
     LOG_PACKET_HEADER;
@@ -31,12 +39,20 @@ struct PACKED log_Beacon {
     float posx;
     float posy;
     float posz;
+    float rx0;
+    float rx1;
+    float rx2;
+    float rx3;
+    float fp0;
+    float fp1;
+    float fp2;
+    float fp3;
 };
 
 #if AP_BEACON_ENABLED
 #define LOG_STRUCTURE_FROM_BEACON \
     { LOG_BEACON_MSG, sizeof(log_Beacon), \
-        "BCN", "QBBfffffff",  "TimeUS,Health,Cnt,D0,D1,D2,D3,PosX,PosY,PosZ", "s--mmmmmmm", "F--0000000", true },
+        "BCN", "QBBfffffffffffffff",  "TimeUS,Health,Cnt,D0,D1,D2,D3,PosX,PosY,PosZ,R0,R1,R2,R3,F0,F1,F2,F3", "s--mmmmmmmdBBBdBBB", "F--000000000000000", true },
 #else
 #define LOG_STRUCTURE_FROM_BEACON
 #endif

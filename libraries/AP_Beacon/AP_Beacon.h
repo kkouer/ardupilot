@@ -50,11 +50,13 @@ public:
     struct BeaconState {
         uint16_t id;            // unique id of beacon
         bool     healthy;       // true if beacon is healthy
-        float    distance;      // distance from vehicle to beacon (in meters)
+        float    distance;      // distance from vehicle to vehicle (in meters)
         uint32_t distance_update_ms;    // system time of last update from this beacon
         Vector3f position;      // location of beacon as an offset from origin in NED in meters
+        float    rx_rssi;       // RX signal strength in dBm
+        float    fp_rssi;       // First-path signal strength in dBm
     };
-
+ 
     // initialise any available position estimators
     void init(void);
 
@@ -92,6 +94,12 @@ public:
 
     // return distance to beacon in meters
     float beacon_distance(uint8_t beacon_instance) const;
+
+    // return RX RSSI in dBm
+    float beacon_rx_rssi(uint8_t beacon_instance) const;
+
+    // return FP RSSI in dBm
+    float beacon_fp_rssi(uint8_t beacon_instance) const;
 
     // return NED position of beacon in meters relative to the beacon systems origin
     Vector3f beacon_position(uint8_t beacon_instance) const;
