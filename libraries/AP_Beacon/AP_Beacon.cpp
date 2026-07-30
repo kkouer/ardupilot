@@ -242,6 +242,24 @@ float AP_Beacon::beacon_distance(uint8_t beacon_instance) const
     return beacon_state[beacon_instance].distance;
 }
 
+// return RX RSSI in dBm
+float AP_Beacon::beacon_rx_rssi(uint8_t beacon_instance) const
+{
+    if (beacon_instance >= num_beacons || !beacon_state[beacon_instance].healthy) {
+        return 0.0f;
+    }
+    return beacon_state[beacon_instance].rx_rssi;
+}
+
+// return FP RSSI in dBm
+float AP_Beacon::beacon_fp_rssi(uint8_t beacon_instance) const
+{
+    if (beacon_instance >= num_beacons || !beacon_state[beacon_instance].healthy) {
+        return 0.0f;
+    }
+    return beacon_state[beacon_instance].fp_rssi;
+}
+
 // return beacon position in meters
 Vector3f AP_Beacon::beacon_position(uint8_t beacon_instance) const
 {
@@ -434,7 +452,15 @@ void AP_Beacon::log()
        dist3           : beacon_distance(3),
        posx            : pos.x,
        posy            : pos.y,
-       posz            : pos.z
+       posz            : pos.z,
+       rx0             : beacon_rx_rssi(0),
+       rx1             : beacon_rx_rssi(1),
+       rx2             : beacon_rx_rssi(2),
+       rx3             : beacon_rx_rssi(3),
+       fp0             : beacon_fp_rssi(0),
+       fp1             : beacon_fp_rssi(1),
+       fp2             : beacon_fp_rssi(2),
+       fp3             : beacon_fp_rssi(3)
     };
     AP::logger().WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
 }
