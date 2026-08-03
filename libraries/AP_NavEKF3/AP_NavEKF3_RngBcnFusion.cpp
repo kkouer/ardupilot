@@ -386,10 +386,16 @@ void NavEKF3_core::FuseRngBcnStatic()
         if (rngBcn.numMeas >= 100) {
             rngBcn.alignmentStarted = true;
             ftype tempVar = 1.0f / (ftype)rngBcn.numMeas;
-            // initialise the receiver position to the centre of the beacons and at zero height
-            rngBcn.receiverPos.x = rngBcn.posSum.x * tempVar;
-            rngBcn.receiverPos.y = rngBcn.posSum.y * tempVar;
-            rngBcn.receiverPos.z = 0.0f;
+            // initialise the receiver position to vehicle position if available, otherwise centre of beacons
+            if (rngBcn.vehiclePosErr < 1.0f) {
+                rngBcn.receiverPos.x = rngBcn.vehiclePosNED.x;
+                rngBcn.receiverPos.y = rngBcn.vehiclePosNED.y;
+                rngBcn.receiverPos.z = rngBcn.vehiclePosNED.z;
+            } else {
+                rngBcn.receiverPos.x = rngBcn.posSum.x * tempVar;
+                rngBcn.receiverPos.y = rngBcn.posSum.y * tempVar;
+                rngBcn.receiverPos.z = 0.0f;
+            }
             rngBcn.receiverPosCov[2][2] = rngBcn.receiverPosCov[1][1] = rngBcn.receiverPosCov[0][0] = rngBcn.sum * tempVar;
             rngBcn.lastIndex  = 0;
             rngBcn.numMeas = 0;

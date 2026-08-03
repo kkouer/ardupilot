@@ -1013,7 +1013,7 @@ void NavEKF3_core::readRngBcnData()
         if (posDiffSq < 9.0f * posDiffVar) {
             rngBcn.goodToAlign = true;
             // Set the EKF origin and magnetic field declination if not previously set
-            if (!validOrigin && (PV_AidingMode != AID_ABSOLUTE)) {
+            if (!validOrigin) {
                 // get origin from beacon system
                 Location origin_loc;
                 if (beacon->get_origin(origin_loc)) {
@@ -1024,6 +1024,11 @@ void NavEKF3_core::readRngBcnData()
                     alignMagStateDeclination();
 
                     // Set the uncertainty of the origin height
+                    ekfOriginHgtVar = sq(rngBcn.vehiclePosErr);
+                } else if (gpsGoodToAlign && gps.location(selected_gps).initialised()) {
+                    // Fallback to GPS origin if beacon origin parameters are not set
+                    setOriginLLH(gps.location(selected_gps));
+                    alignMagStateDeclination();
                     ekfOriginHgtVar = sq(rngBcn.vehiclePosErr);
                 }
             }
