@@ -12,7 +12,7 @@
 
 // maximum number of battery monitors
 #ifndef AP_BATT_MONITOR_MAX_INSTANCES
-#define AP_BATT_MONITOR_MAX_INSTANCES       9
+#define AP_BATT_MONITOR_MAX_INSTANCES       12
 #endif
 
 #ifndef AP_BATTERY_BACKEND_DEFAULT_ENABLED
