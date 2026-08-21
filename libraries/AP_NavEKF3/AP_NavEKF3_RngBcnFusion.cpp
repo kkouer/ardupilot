@@ -67,8 +67,8 @@ void NavEKF3_core::SelectRngBcnFusion()
     // read range data from the sensor and check for new data in the buffer
     readRngBcnData();
 
-    // If range beacon data is active, we are on the ground, and UWB has not been aligned yet, print a periodic warning from core 0 up to 10 times
-    if (core_index == 0 && onGround && rngBcn.dataToFuse && !rngBcn.originEstInitOnce && rngBcn.originEstWarnCount < 20) {
+    // If range beacon data is active, we are on the ground, and UWB has not finished alignment yet, print a periodic warning up to 10 times
+    if (core_index == 0 && onGround && rngBcn.dataToFuse && !rngBcn.alignmentCompleted && !rngBcn.originEstInitOnce && rngBcn.originEstWarnCount < 20) {
         uint32_t now = dal.millis();
         static uint32_t last_warn_ms = 0;
         if (now - last_warn_ms > 5000) {
@@ -84,18 +84,18 @@ void NavEKF3_core::SelectRngBcnFusion()
             if ((frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON) && rngBcn.alignmentCompleted) {
                 if (!rngBcn.originEstInit) {
                     rngBcn.originEstInit = true;
-                    rngBcn.originEstInitOnce = true;
-                    // bcnPosOffsetNED.x = receiverPos.x - stateStruct.position.x;
-                    // bcnPosOffsetNED.y = receiverPos.y - stateStruct.position.y;
-                    //kkouer added manually align bcn offset
-                    rngBcn.posOffsetNED.x = -rngBcn.vehiclePosNED.x;
-                    rngBcn.posOffsetNED.y = -rngBcn.vehiclePosNED.y;
-                    rngBcn.receiverPos.x = stateStruct.position.x;
-                    rngBcn.receiverPos.y = stateStruct.position.y;
+                    if (core_index == 0) {
+                        rngBcn.originEstInitOnce = true;
+                        // Calculate offset between active EKF position and UWB receiver position (matches += in readRngBcnData)
+                        rngBcn.posOffsetNED.x = stateStruct.position.x - rngBcn.receiverPos.x;
+                        rngBcn.posOffsetNED.y = stateStruct.position.y - rngBcn.receiverPos.y;
+                    } else {
+                        // Secondary core(s) synchronize posOffsetNED directly from Core 0 to prevent dual-IMU core offset mismatch
+                        rngBcn.originEstInitOnce = true;
+                        rngBcn.posOffsetNED = frontend->core[0].rngBcn.posOffsetNED;
+                    }
 
-                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Align     x:%.3f  y:%.3f",rngBcn.posOffsetNED.x,rngBcn.posOffsetNED.y);
-                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "state     x:%.3f  y:%.3f ",stateStruct.position.x,stateStruct.position.y);
-                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "id %d rec.x:%.3f  y:%.3f ",core_index,rngBcn.receiverPos.x,rngBcn.receiverPos.y);
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "IMU%u Align Offset x:%.3f y:%.3f", (unsigned)core_index, rngBcn.posOffsetNED.x, rngBcn.posOffsetNED.y);
                 }
                 // beacons are used as the primary means of position reference
                 FuseRngBcn();
