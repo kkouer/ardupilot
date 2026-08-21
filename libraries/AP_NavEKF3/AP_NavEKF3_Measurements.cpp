@@ -1025,9 +1025,9 @@ void NavEKF3_core::readRngBcnData()
 
                     // Set the uncertainty of the origin height
                     ekfOriginHgtVar = sq(rngBcn.vehiclePosErr);
-                } else if (gpsGoodToAlign && gps.location(selected_gps).initialised()) {
+                } else if (dal.gps().status(selected_gps) >= AP_DAL_GPS::GPS_Status::GPS_OK_FIX_3D) {
                     // Fallback to GPS origin if beacon origin parameters are not set
-                    setOriginLLH(gps.location(selected_gps));
+                    setOriginLLH(dal.gps().location(selected_gps));
                     alignMagStateDeclination();
                     ekfOriginHgtVar = sq(rngBcn.vehiclePosErr);
                 }
