@@ -672,7 +672,7 @@ bool NavEKF3_core::readyToUseRangeBeacon(void) const {
     return false;
   }
 
-  return tiltAlignComplete && yawAlignComplete && delAngBiasLearned &&
+  return validOrigin && tiltAlignComplete && yawAlignComplete && delAngBiasLearned &&
          rngBcn.alignmentCompleted && rngBcn.dataToFuse;
 #else
   return false;
