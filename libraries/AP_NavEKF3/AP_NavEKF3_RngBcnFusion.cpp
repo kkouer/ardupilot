@@ -84,27 +84,30 @@ void NavEKF3_core::SelectRngBcnFusion()
             if ((frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON) && rngBcn.alignmentCompleted) {
                 if (!rngBcn.originEstInit) {
                     rngBcn.originEstInit = true;
+                    rngBcn.lastPassTime_ms = imuSampleTime_ms; // Reset timer on switch to prevent false warning on first frame
                     if (core_index == 0) {
                         rngBcn.originEstInitOnce = true;
-                        // Calculate offset between active EKF position and UWB receiver position (matches += in readRngBcnData)
-                        rngBcn.posOffsetNED.x = stateStruct.position.x - rngBcn.receiverPos.x;
-                        rngBcn.posOffsetNED.y = stateStruct.position.y - rngBcn.receiverPos.y;
+                        // User specified custom alignment method (commit c48b9c45e31016a6846d457550b18f2d055a3707):
+                        // Set posOffsetNED to negative of UWB vehicle position and initialize receiverPos to current EKF state position
+                        rngBcn.posOffsetNED.x = -rngBcn.vehiclePosNED.x;
+                        rngBcn.posOffsetNED.y = -rngBcn.vehiclePosNED.y;
+                        rngBcn.receiverPos.x = stateStruct.position.x;
+                        rngBcn.receiverPos.y = stateStruct.position.y;
                     } else {
-                        // Secondary core(s) synchronize posOffsetNED directly from Core 0 to prevent dual-IMU core offset mismatch
+                        // Secondary core(s) synchronize posOffsetNED and receiverPos directly from Core 0
                         rngBcn.originEstInitOnce = true;
                         rngBcn.posOffsetNED = frontend->core[0].rngBcn.posOffsetNED;
+                        rngBcn.receiverPos = frontend->core[0].rngBcn.receiverPos;
                     }
-
-                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "IMU%u Align Offset x:%.3f y:%.3f", (unsigned)core_index, rngBcn.posOffsetNED.x, rngBcn.posOffsetNED.y);
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "IMU%u Align bcn offset x:%.3f y:%.3f", (unsigned)core_index, rngBcn.posOffsetNED.x, rngBcn.posOffsetNED.y);
                 }
                 // beacons are used as the primary means of position reference
                 FuseRngBcn();
             } else {
                 // If another source (i.e. GPS, ExtNav) is the primary reference, we continue to use the beacon data
-                // to calculate an independent position that is used to update the beacon position offset if we need to
-                // start using beacon data as the primary reference.
+                // to calculate an independent position (receiverPos).
                 FuseRngBcnStatic();
-                // record that the beacon origin needs to be initialised
+                // record that the beacon origin needs to be initialised on switch to BEACON mode
                 rngBcn.originEstInit = false;
             }
         } else {
