@@ -67,7 +67,7 @@ void NavEKF3_core::SelectRngBcnFusion()
     // read range data from the sensor and check for new data in the buffer
     readRngBcnData();
 
-    // If range beacon data is active, we are on the ground, and UWB has not finished alignment yet, print a periodic warning up to 10 times
+    // kkouer added: UWB地面对齐警告 (Print periodic warning up to 20 times on ground before alignment completion)
     if (core_index == 0 && onGround && rngBcn.dataToFuse && !rngBcn.alignmentCompleted && !rngBcn.originEstInitOnce && rngBcn.originEstWarnCount < 20) {
         uint32_t now = dal.millis();
         static uint32_t last_warn_ms = 0;
@@ -84,17 +84,17 @@ void NavEKF3_core::SelectRngBcnFusion()
             if ((frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON) && rngBcn.alignmentCompleted) {
                 if (!rngBcn.originEstInit) {
                     rngBcn.originEstInit = true;
-                    rngBcn.lastPassTime_ms = imuSampleTime_ms; // Reset timer on switch to prevent false warning on first frame
+                    // kkouer added: 重置切源第一帧融合计时器，消除假阳性误报 / Reset fusion timer on switch to eliminate false 2000ms warning
+                    rngBcn.lastPassTime_ms = imuSampleTime_ms;
                     if (core_index == 0) {
                         rngBcn.originEstInitOnce = true;
-                        // User specified custom alignment method (commit c48b9c45e31016a6846d457550b18f2d055a3707):
-                        // Set posOffsetNED to negative of UWB vehicle position and initialize receiverPos to current EKF state position
+                        // kkouer added: 设置偏置向量为 -vehiclePosNED，以当前姿态初始化 receiverPos / Set posOffsetNED to -vehiclePosNED and init receiverPos with active state position
                         rngBcn.posOffsetNED.x = -rngBcn.vehiclePosNED.x;
                         rngBcn.posOffsetNED.y = -rngBcn.vehiclePosNED.y;
                         rngBcn.receiverPos.x = stateStruct.position.x;
                         rngBcn.receiverPos.y = stateStruct.position.y;
                     } else {
-                        // Secondary core(s) synchronize posOffsetNED and receiverPos directly from Core 0
+                        // kkouer added: 从 IMU 核心强同步偏置与 receiverPos，消除双核心 1 米偏差 / Secondary core(s) synchronize posOffsetNED and receiverPos from Core 0
                         rngBcn.originEstInitOnce = true;
                         rngBcn.posOffsetNED = frontend->core[0].rngBcn.posOffsetNED;
                         rngBcn.receiverPos = frontend->core[0].rngBcn.receiverPos;

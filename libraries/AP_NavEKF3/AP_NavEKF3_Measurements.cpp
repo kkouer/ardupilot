@@ -1026,7 +1026,7 @@ void NavEKF3_core::readRngBcnData()
                     // Set the uncertainty of the origin height
                     ekfOriginHgtVar = sq(rngBcn.vehiclePosErr);
                 } else if (dal.gps().status(selected_gps) >= AP_DAL_GPS::GPS_Status::GPS_OK_FIX_3D) {
-                    // Fallback to GPS origin if beacon origin parameters are not set
+                    // kkouer added: 当未设置 UWB 原点参数时，回退使用 3D Fix GPS 经纬度建立 EKF 地图原点 / Fallback to 3D Fix GPS origin if beacon origin parameters are not set
                     setOriginLLH(dal.gps().location(selected_gps));
                     alignMagStateDeclination();
                     ekfOriginHgtVar = sq(rngBcn.vehiclePosErr);
@@ -1048,8 +1048,7 @@ void NavEKF3_core::readRngBcnData()
         rngBcn.dataDelayed.beacon_posNED.y += rngBcn.posOffsetNED.y;
     }
 
-    // 精确监测 EKF 是否正在正常融合 UWB 消息
-    // 条件：基站数量不为0、当前已在地面完成绝对对齐、且当前定位源已切换为 UWB (BEACON)
+    // kkouer added: 监测 EKF 是否正在正常融合 UWB 测距包（超时超过 2 秒则输出保护告警） / Monitor UWB fusion health and warn if stopped for > 2000ms
     if (beacon->count() != 0 && rngBcn.originEstInitOnce && 
         (frontend->sources.getPosXYSource(core_index) == AP_NavEKF_Source::SourceXY::BEACON)) {
         

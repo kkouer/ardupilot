@@ -280,12 +280,14 @@ void AP_Beacon_Nooploop::parse_node_frame2() {
                           (int32_t)_msgbuf[offset + 2] << 8) >>
                          8;
 
+    // kkouer added: 解析并储存每个基站的 RSSI 信号强度 (rx_rssi, fp_rssi) / Parse and set rx_rssi & fp_rssi for each beacon
     float fp_rssi = _msgbuf[offset + 5] / -2.0f;
     float rx_rssi = _msgbuf[offset + 6] / -2.0f;
 
     set_beacon_distance(id, dist * 0.001f);
     set_beacon_rssi(id, rx_rssi, fp_rssi);
 
+    // kkouer added: 定期向地面站发送 MAVLink 浮点消息 (UWBR0~3, UWBF0~3) / Send UWBR0~3 & UWBF0~3 named float messages to GCS
     if (should_print_rssi) {
       char name_rx[10];
       hal.util->snprintf(name_rx, sizeof(name_rx), "UWBR%u", id);
