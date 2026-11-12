@@ -290,6 +290,12 @@ const AP_Param::GroupInfo AP_Vehicle::var_info[] = {
     AP_SUBGROUPINFO(rpm_sensor, "RPM", 32, AP_Vehicle, AP_RPM),
 #endif
 
+#if AP_WEIGHT_SENSOR_ENABLED
+    // @Group: WGT_
+    // @Path: ../AP_WeightSensor/AP_WeightSensor.cpp
+    AP_SUBGROUPINFO(weight_sensor, "WGT_", 33, AP_Vehicle, AP_WeightSensor),
+#endif
+
     AP_GROUPEND
 };
 
@@ -536,6 +542,10 @@ void AP_Vehicle::setup()
     rpm_sensor.init();
 #endif
 
+#if AP_WEIGHT_SENSOR_ENABLED
+    weight_sensor.init();
+#endif
+
 #if AP_ARMING_ENABLED
     AP::arming().init();
 #endif
@@ -666,6 +676,9 @@ const AP_Scheduler::Task AP_Vehicle::scheduler_tasks[] = {
 #endif
 #if AP_RPM_ENABLED
     SCHED_TASK_CLASS(AP_RPM, &vehicle.rpm_sensor, update,                             50, 100, 239),
+#endif
+#if AP_WEIGHT_SENSOR_ENABLED
+    SCHED_TASK_CLASS(AP_WeightSensor, &vehicle.weight_sensor, update,                 10, 200, 241),
 #endif
 #if OSD_ENABLED
     SCHED_TASK(publish_osd_info, 1, 10, 240),

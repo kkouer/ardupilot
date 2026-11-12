@@ -86,6 +86,7 @@
 #include <AP_RPM/AP_RPM.h>
 #endif
 
+#include <AP_WeightSensor/AP_WeightSensor.h>
 #include <AP_IBus_Telem/AP_IBus_Telem.h>
 
 class AP_DDS_Client;
@@ -499,6 +500,10 @@ protected:
 
 #if AP_RPM_ENABLED
     AP_RPM rpm_sensor;
+#endif
+
+#if AP_WEIGHT_SENSOR_ENABLED
+    AP_WeightSensor weight_sensor;
 #endif
 
     static const struct AP_Param::GroupInfo var_info[];
