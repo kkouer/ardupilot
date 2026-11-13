@@ -324,6 +324,9 @@ static const ap_message STREAM_EXTRA1_msgs[] = {
 #if AP_WINCH_ENABLED
     MSG_WINCH_STATUS,
 #endif
+#if AP_WEIGHT_SENSOR_ENABLED
+    MSG_WEIGHT_SENSOR,
+#endif
 #if HAL_EFI_ENABLED
     MSG_EFI_STATUS,
 #endif
