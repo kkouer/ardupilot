@@ -59,6 +59,7 @@
 #include <AP_OSD/AP_OSD.h>
 #include <AP_RCTelemetry/AP_CRSF_Telem.h>
 #include <AP_RPM/AP_RPM.h>
+#include <AP_WeightSensor/AP_WeightSensor.h>
 #include <AP_AIS/AP_AIS.h>
 #include <AP_Filesystem/AP_Filesystem.h>
 #include <AP_Frsky_Telem/AP_Frsky_Telem.h>
@@ -1179,6 +1180,9 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
 #endif
 #if AP_WINCH_ENABLED
         { MAVLINK_MSG_ID_WINCH_STATUS,          MSG_WINCH_STATUS},
+#endif
+#if AP_WEIGHT_SENSOR_ENABLED
+        { MAVLINK_MSG_ID_WEIGHT_SENSOR,         MSG_WEIGHT_SENSOR},
 #endif
 #if HAL_WITH_ESC_TELEM
         { MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4,  MSG_ESC_TELEMETRY},
@@ -5995,6 +5999,24 @@ void GCS_MAVLINK::send_rpm() const
 }
 #endif  // AP_RPM_ENABLED
 
+#if AP_WEIGHT_SENSOR_ENABLED
+void GCS_MAVLINK::send_weight_sensor() const
+{
+    AP_WeightSensor *sensor = AP::weight_sensor();
+    if (sensor == nullptr || !sensor->enabled()) {
+        return;
+    }
+
+    mavlink_msg_weight_sensor_send(
+        chan,
+        AP_HAL::millis(),
+        0,
+        sensor->healthy() ? 1 : 0,
+        sensor->weight_kg(),
+        sensor->raw());
+}
+#endif  // AP_WEIGHT_SENSOR_ENABLED
+
 void GCS_MAVLINK::send_sys_status()
 {
     // send extended status only once vehicle has been initialised
@@ -6462,6 +6484,13 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
     case MSG_RPM:
         CHECK_PAYLOAD_SIZE(RPM);
         send_rpm();
+        break;
+#endif
+
+#if AP_WEIGHT_SENSOR_ENABLED
+    case MSG_WEIGHT_SENSOR:
+        CHECK_PAYLOAD_SIZE(WEIGHT_SENSOR);
+        send_weight_sensor();
         break;
 #endif
 
