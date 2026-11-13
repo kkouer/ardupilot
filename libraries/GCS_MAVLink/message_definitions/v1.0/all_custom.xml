@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<mavlink>
+  <!--
+    Build-time wrapper around the official all.xml dialect, plus a private
+    WEIGHT_SENSOR message.  Message ID 32768 is in the MAVLink
+    locally-defined / experimental range (32768-34815), so it will not
+    collide with official common or ardupilotmega IDs.
+  -->
+  <include>../../../../modules/mavlink/message_definitions/v1.0/all.xml</include>
+  <messages>
+    <message id="32768" name="WEIGHT_SENSOR">
+      <description>Weight sensor reading from a load-cell indicator attached to the autopilot (for example Ruilide RDD-DX over Modbus-RTU).</description>
+      <field type="uint32_t" name="time_boot_ms" units="ms">Timestamp (time since system boot).</field>
+      <field type="uint8_t" name="id">Onboard instance of the sensor.</field>
+      <field type="uint8_t" name="healthy">Sensor data healthy (0=unhealthy, 1=healthy).</field>
+      <field type="float" name="weight" units="kg">Measured weight after scale and offset.</field>
+      <field type="int32_t" name="raw">Raw signed integer from the indicator, before scale and offset.</field>
+    </message>
+  </messages>
+</mavlink>

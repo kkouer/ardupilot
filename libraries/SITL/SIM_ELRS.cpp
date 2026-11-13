@@ -9,7 +9,7 @@
 #include <AP_HAL_SITL/AP_HAL_SITL.h>
 #include <AP_HAL_SITL/UARTDriver.h>
 
-#include "include/mavlink/v2.0/all/mavlink.h"
+#include "include/mavlink/v2.0/all_custom/mavlink.h"
 
 // Example command: -A --serial2=sim:ELRS
 // TCP connection will be started on normal AP port eg 5763 for serial 2

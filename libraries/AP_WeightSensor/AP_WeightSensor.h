@@ -25,6 +25,9 @@
   32-bit signed, CDAB word order.  The meter stores counts without a
   decimal point; set WGT_SCALE (for example 0.01 if a 100.00 kg weight
   was entered as 10000 during calibration).
+
+  Telemetry is sent as MAVLink WEIGHT_SENSOR (id 32768) on stream EXTRA1,
+  and also as NAMED_VALUE_FLOAT with name WGT.
  */
 
 class AP_WeightSensor {
