@@ -10,6 +10,7 @@
 
 #include <AP_AHRS/AP_AHRS_config.h>
 #include <AP_Terrain/AP_Terrain_config.h>
+#include <AP_WeightSensor/AP_WeightSensor_config.h>
 
 enum ap_message : uint8_t {
     MSG_HEARTBEAT                      =   0,
