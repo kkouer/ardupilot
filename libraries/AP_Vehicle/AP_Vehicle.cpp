@@ -677,11 +677,11 @@ const AP_Scheduler::Task AP_Vehicle::scheduler_tasks[] = {
 #if AP_RPM_ENABLED
     SCHED_TASK_CLASS(AP_RPM, &vehicle.rpm_sensor, update,                             50, 100, 239),
 #endif
-#if AP_WEIGHT_SENSOR_ENABLED
-    SCHED_TASK_CLASS(AP_WeightSensor, &vehicle.weight_sensor, update,                 10, 200, 241),
-#endif
 #if OSD_ENABLED
     SCHED_TASK(publish_osd_info, 1, 10, 240),
+#endif
+#if AP_WEIGHT_SENSOR_ENABLED
+    SCHED_TASK_CLASS(AP_WeightSensor, &vehicle.weight_sensor, update,                 10, 200, 241),
 #endif
 #if AP_TEMPERATURE_SENSOR_ENABLED
     SCHED_TASK_CLASS(AP_TemperatureSensor, &vehicle.temperature_sensor, update,        5, 50, 242),
