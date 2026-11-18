@@ -25,6 +25,7 @@
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <AP_RangeFinder/AP_RangeFinder_config.h>
 #include <AP_Winch/AP_Winch_config.h>
+#include <AP_WeightSensor/AP_WeightSensor_config.h>
 #include <AP_AHRS/AP_AHRS_config.h>
 #include <AP_Arming/AP_Arming_config.h>
 #include <AP_Airspeed/AP_Airspeed_config.h>
@@ -389,6 +390,9 @@ public:
     void send_sys_status();
     void send_set_position_target_global_int(uint8_t target_system, uint8_t target_component, const Location& loc);
     void send_rpm() const;
+#if AP_WEIGHT_SENSOR_ENABLED
+    void send_weight_sensor() const;
+#endif
     void send_generator_status() const;
 #if AP_WINCH_ENABLED
     virtual void send_winch_status() const {};

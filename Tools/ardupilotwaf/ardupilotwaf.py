@@ -122,6 +122,7 @@ COMMON_VEHICLE_DEPENDENT_LIBRARIES = [
     'AP_Torqeedo',
     'AP_CustomRotations',
     'AP_AIS',
+    'AP_WeightSensor',
     'AP_OpenDroneID',
     'AP_CheckFirmware',
     'AP_ExternalControl',
